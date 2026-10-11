@@ -20,6 +20,32 @@ Se você também cansou das barreiras das nuvens proprietárias, o **iOpenbackup
 
 ---
 
+## 📸 Demonstração Visual da Plataforma
+
+<p align="center">
+  <img src="docs/screenshots/02-dashboard-principal.png" alt="Dashboard Principal do iOpenbackup" width="100%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
+</p>
+
+### 🛡️ 1. Primeiro Acesso com Proteção de Senha Mestra & Fundo Azul Pulsante
+Interface de primeiro acesso com hash criptográfico PBKDF2 (SHA-512) para proteger o painel e o motor do iCloud:
+<p align="center">
+  <img src="docs/screenshots/01-primeiro-acesso.png" alt="Primeiro Acesso e Autenticação Mestra" width="85%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
+</p>
+
+### 📱 2. Conexão Nativa do iPhone (App Arquivos / Files)
+Instruções integradas para conectar o iPhone via SMB nativo do iOS, com QR Code dinâmico e endereço local:
+<p align="center">
+  <img src="docs/screenshots/03-conexao-iphone.png" alt="Guia de Conexão do iPhone" width="85%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
+</p>
+
+### 👥 3. Alinhamento Unificado de Usuários
+Central para alinhar contas de Apple ID (iCloud), credenciais do Immich e permissões Samba do iOS:
+<p align="center">
+  <img src="docs/screenshots/04-alinhamento-usuarios.png" alt="Alinhamento de Usuários" width="85%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
+</p>
+
+---
+
 ## 🏗️ Módulos da Stack & Créditos Open Source
 
 O **iOpenbackup** reúne o melhor do ecossistema open-source mundial em uma arquitetura harmoniosa e pronta para produção. Cada módulo desempenha um papel essencial com os devidos créditos aos seus criadores:
