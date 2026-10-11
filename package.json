@@ -1,0 +1,40 @@
+{
+  "name": "iopenbackup",
+  "version": "1.0.0",
+  "description": "Plataforma Aberta e Unificada para Soberania e Backup Automático de iPhones",
+  "main": "bin/cli.js",
+  "bin": {
+    "iopenbackup": "./bin/cli.js"
+  },
+  "scripts": {
+    "start": "node bin/cli.js start",
+    "stop": "node bin/cli.js stop",
+    "status": "node bin/cli.js status",
+    "reset": "node bin/cli.js reset",
+    "dashboard": "node dashboard/server.js"
+  },
+  "keywords": [
+    "iopenbackup",
+    "icloud",
+    "backup",
+    "iphone",
+    "immich",
+    "samba",
+    "ios",
+    "self-hosted",
+    "photos"
+  ],
+  "author": "Emerson Silva (https://github.com/emersoncassis)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/emersoncassis/iOpenbackup.git"
+  },
+  "bugs": {
+    "url": "https://github.com/emersoncassis/iOpenbackup/issues"
+  },
+  "homepage": "https://github.com/emersoncassis/iOpenbackup#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

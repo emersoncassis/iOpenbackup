@@ -1,0 +1,102 @@
+name: iopenbackup
+
+services:
+  # ==========================================
+  # 1. iCloud Client (mandarons/icloud-docker)
+  # Porta protegida: acessível apenas via localhost/Dashboard
+  # ==========================================
+  icloud:
+    image: mandarons/icloud-drive:latest
+    container_name: icloud
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+      - ENV_CONFIG_FILE_PATH=/config/config.yaml
+    volumes:
+      - icloud_config:/config
+      - icloud_data:/icloud
+    ports:
+      - "127.0.0.1:8080:8080"
+
+  # ==========================================
+  # 2. Immich - Photos, Timeline & AI
+  # ==========================================
+  immich-server:
+    container_name: immich_server
+    image: ghcr.io/immich-app/immich-server:release
+    environment:
+      - TZ=America/Sao_Paulo
+      - DB_HOSTNAME=immich_postgres
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - DB_DATABASE_NAME=immich
+      - REDIS_HOSTNAME=immich_redis
+    volumes:
+      - immich_data:/data
+      - icloud_data:/mnt/icloud:ro
+    ports:
+      - "2283:2283"
+    depends_on:
+      - immich-redis
+      - immich-postgres
+    restart: always
+
+  immich-machine-learning:
+    container_name: immich_machine_learning
+    image: ghcr.io/immich-app/immich-machine-learning:release
+    environment:
+      - TZ=America/Sao_Paulo
+    volumes:
+      - immich_model_cache:/cache
+    restart: always
+
+  immich-redis:
+    container_name: immich_redis
+    image: docker.io/valkey/valkey:9@sha256:c123e3715db63d06d4ad6964884037aa0d5d4d703939b9929954112889708e1d
+    healthcheck:
+      test: redis-cli ping | grep -q PONG || exit 1
+    restart: always
+
+  immich-postgres:
+    container_name: immich_postgres
+    image: ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0@sha256:bcf63357191b76a916ae5eb93464d65c07511da41e3bf7a8416db519b40b1c23
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: immich
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+    volumes:
+      - immich_postgres_data:/var/lib/postgresql/data
+    shm_size: 128mb
+    restart: always
+
+  # ==========================================
+  # 3. Samba SMB Service (iPhone Files App Access)
+  # ==========================================
+  samba:
+    container_name: samba
+    image: dockurr/samba:latest
+    restart: unless-stopped
+    environment:
+      USER: "backupuser"
+      PASS: "backup123"
+      NAME: "iCloud-Backup"
+      RW: "true"
+    volumes:
+      - icloud_data:/shared
+    ports:
+      - "4445:445"
+
+volumes:
+  icloud_config:
+    name: icloud_config
+  icloud_data:
+    name: icloud_data
+  immich_data:
+    name: immich_data
+  immich_model_cache:
+    name: immich_model_cache
+  immich_postgres_data:
+    name: immich_postgres_data

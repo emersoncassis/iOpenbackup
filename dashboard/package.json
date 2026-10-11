@@ -1,0 +1,16 @@
+{
+  "name": "iopenbackup-dashboard",
+  "version": "1.0.0",
+  "description": "Unified Dashboard for iCloud Sync, Immich Photos, and Samba iOS File Server",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["icloud", "immich", "samba", "ios", "backup"],
+  "author": "Emerson Silva (https://github.com/emersoncassis)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/emersoncassis/iOpenbackup.git"
+  },
+  "license": "MIT"
+}

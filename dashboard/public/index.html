@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iOpenbackup | Central de Backup iCloud, Immich & Samba</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='2' width='14' height='20' rx='3' ry='3'/%3E%3Cpath d='M11 4h2'/%3E%3Cline x1='10' y1='18' x2='14' y2='18'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Ambient Animated Pulsating Blue Gradient Background -->
+  <div class="ambient-glow-bg" aria-hidden="true">
+    <div class="glow-orb glow-orb-1"></div>
+    <div class="glow-orb glow-orb-2"></div>
+    <div class="glow-orb glow-orb-3"></div>
+  </div>
+
+  <!-- Fullscreen Auth Screen (First Access Setup / Login) -->
+  <div id="authOverlay" class="auth-overlay">
+    <div class="auth-card">
+      <div class="auth-icon-wrap">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="5" y="2" width="14" height="20" rx="3" ry="3"/>
+          <path d="M11 4h2"/>
+          <line x1="10" y1="18" x2="14" y2="18"/>
+        </svg>
+      </div>
+
+      <div class="auth-header">
+        <h2 id="authTitle">Central iOpenbackup</h2>
+        <p id="authSubtitle">Carregando status de segurança...</p>
+      </div>
+
+      <!-- Form Setup (Primeiro Acesso) -->
+      <form id="setupForm" class="auth-form" style="display: none;" onsubmit="handleSetupSubmit(event)">
+        <div class="auth-badge-info">
+          🛡️ <strong>Primeiro Acesso:</strong> Defina o usuário e a senha mestra para proteger o painel e o acesso ao <strong>iCloud Sync Engine</strong>.
+        </div>
+
+        <div class="form-group">
+          <label for="setupUser">Usuário Administrador</label>
+          <input type="text" id="setupUser" required placeholder="Ex: admin ou seu-usuario" autocomplete="username">
+        </div>
+
+        <div class="form-group">
+          <label for="setupPass">Senha Mestra (mínimo 6 caracteres)</label>
+          <input type="password" id="setupPass" required minlength="6" placeholder="••••••••" autocomplete="new-password">
+        </div>
+
+        <div class="form-group">
+          <label for="setupPassConfirm">Confirmar Senha Mestra</label>
+          <input type="password" id="setupPassConfirm" required minlength="6" placeholder="••••••••" autocomplete="new-password">
+        </div>
+
+        <button type="submit" class="btn btn-primary w-full" id="btnSetupSubmit">
+          Criar Administrador e Acessar Plataforma
+        </button>
+      </form>
+
+      <!-- Form Login (Acessos posteriores) -->
+      <form id="loginForm" class="auth-form" style="display: none;" onsubmit="handleLoginSubmit(event)">
+        <div class="form-group">
+          <label for="loginUser">Usuário</label>
+          <input type="text" id="loginUser" required placeholder="Digite seu usuário" autocomplete="username">
+        </div>
+
+        <div class="form-group">
+          <label for="loginPass">Senha</label>
+          <input type="password" id="loginPass" required placeholder="Digite sua senha" autocomplete="current-password">
+        </div>
+
+        <button type="submit" class="btn btn-primary w-full" id="btnLoginSubmit">
+          Entrar no Sistema
+        </button>
+      </form>
+
+      <div id="authErrorMsg" class="auth-error" style="display: none;"></div>
+    </div>
+  </div>
+
+  <!-- App Layout (Protected) -->
+  <div class="app-layout" id="mainAppLayout" style="display: none;">
+    <!-- Top Navigation Bar -->
+    <header class="top-nav">
+      <div class="nav-brand">
+        <div class="logo-badge">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="2" width="14" height="20" rx="3" ry="3"/>
+            <path d="M11 4h2"/>
+            <line x1="10" y1="18" x2="14" y2="18"/>
+          </svg>
+        </div>
+        <div>
+          <span class="brand-title">iOpenbackup</span>
+          <span class="brand-subtitle">iCloud • Immich • Samba iOS Bridge</span>
+        </div>
+      </div>
+
+      <div class="nav-meta">
+        <div class="network-badge" id="networkPill" title="IP local detectado na sua rede Wi-Fi">
+          <span class="dot-pulse"></span>
+          <span id="hostIpText">IP: Carregando...</span>
+        </div>
+        <div class="user-session-chip" id="userSessionChip" title="Usuário autenticado">
+          <span class="session-avatar">👤</span>
+          <span id="sessionUsername">admin</span>
+        </div>
+        <button id="btnRestartAll" class="btn btn-secondary btn-sm" title="Reiniciar todos os containers">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+          </svg>
+          Reiniciar Stack
+        </button>
+        <button id="btnLogout" class="btn btn-outline btn-sm" onclick="handleLogout()" title="Sair da sessão">
+          Sair
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="main-content">
+      <!-- Header Hero -->
+      <section class="hero-header">
+        <div>
+          <h1>Central de Gerenciamento de Backup</h1>
+          <p class="hero-desc">
+            Orquestre a sincronização do <strong>iCloud</strong> de iPhones, visualize fotos com inteligência artificial no <strong>Immich</strong> e conecte dispositivos diretamente via <strong>Samba SMB</strong>.
+          </p>
+        </div>
+        <div class="quick-stats">
+          <div class="stat-card">
+            <span class="stat-val" id="statActiveServices">3/3</span>
+            <span class="stat-label">Serviços Ativos</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-val" id="statUsersCount">1</span>
+            <span class="stat-label">Usuários Alinhados</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-val" id="statStorageShare">/icloud</span>
+            <span class="stat-label">Volume de Fotos</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Navigation Tabs -->
+      <nav class="nav-tabs" role="tablist">
+        <button class="tab-btn active" data-tab="tab-services" role="tab" aria-selected="true" id="tabBtnServices">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
+            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
+            <line x1="6" y1="6" x2="6.01" y2="6"/>
+            <line x1="6" y1="18" x2="6.01" y2="18"/>
+          </svg>
+          Serviços & Monitor
+        </button>
+        <button class="tab-btn" data-tab="tab-users" role="tab" aria-selected="false" id="tabBtnUsers">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          Alinhamento de Usuários
+        </button>
+        <button class="tab-btn" data-tab="tab-iphone" role="tab" aria-selected="false" id="tabBtnIphone">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+            <line x1="12" y1="18" x2="12.01" y2="18"/>
+          </svg>
+          Conexão iPhone (Arquivos)
+        </button>
+        <button class="tab-btn" data-tab="tab-logs" role="tab" aria-selected="false" id="tabBtnLogs">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="4 17 10 11 4 5"/>
+            <line x1="12" y1="19" x2="20" y2="19"/>
+          </svg>
+          Logs & Diagnósticos
+        </button>
+      </nav>
+
+      <!-- TAB 1: SERVICES & MONITOR -->
+      <section id="tab-services" class="tab-pane active" role="tabpanel">
+        <div class="services-grid">
+          
+          <!-- Card 1: iCloud Sync -->
+          <article class="service-card" id="card-icloud">
+            <div class="card-header">
+              <div class="service-icon icon-icloud">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+                </svg>
+              </div>
+              <div class="service-title-wrap">
+                <div class="service-title-row">
+                  <h3>iCloud Sync Engine</h3>
+                  <span class="status-pill status-loading" id="pill-icloud">Verificando...</span>
+                </div>
+                <p class="service-sub">mandarons/icloud-docker • Drive & Photos</p>
+              </div>
+            </div>
+
+            <div class="service-body">
+              <div class="detail-row">
+                <span class="detail-label">Status Container:</span>
+                <span class="detail-value mono" id="statusText-icloud">-</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Segurança:</span>
+                <span class="detail-value text-highlight" style="font-size:12px;">🔒 Protegido com Senha da Dashboard</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Destino do Backup:</span>
+                <span class="detail-value mono">Volume /icloud (Drive + Photos)</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Autenticação 2FA:</span>
+                <a href="/icloud-proxy/auth" class="detail-link" id="linkIcloudAuth">
+                  Acessar 2FA Protegido &rarr;
+                </a>
+              </div>
+            </div>
+
+            <div class="card-footer">
+              <div class="action-buttons">
+                <button class="btn btn-primary btn-sm" onclick="controlService('icloud', 'restart')">
+                  Reiniciar
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="triggerIcloudSync()">
+                  Sincronizar
+                </button>
+                <a href="/icloud-proxy/" class="btn btn-outline btn-sm">
+                  Abrir Painel iCloud
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 2: Immich Photos -->
+          <article class="service-card" id="card-immich">
+            <div class="card-header">
+              <div class="service-icon icon-immich">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21 15 16 10 5 21"/>
+                </svg>
+              </div>
+              <div class="service-title-wrap">
+                <div class="service-title-row">
+                  <h3>Immich AI Photos</h3>
+                  <span class="status-pill status-loading" id="pill-immich">Verificando...</span>
+                </div>
+                <p class="service-sub">immich-server • IA, Reconhecimento Facial & Linha do Tempo</p>
+              </div>
+            </div>
+
+            <div class="service-body">
+              <div class="detail-row">
+                <span class="detail-label">Status do Servidor:</span>
+                <span class="detail-value mono" id="statusText-immich">-</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Porta da Galeria:</span>
+                <span class="detail-value mono">2283 (HTTP)</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Microserviços:</span>
+                <span class="detail-value subservices-list" id="immichSubservices">
+                  <span class="sub-badge" id="sub-server">Server</span>
+                  <span class="sub-badge" id="sub-ml">IA/ML</span>
+                  <span class="sub-badge" id="sub-db">Postgres</span>
+                  <span class="sub-badge" id="sub-redis">Valkey</span>
+                </span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Biblioteca Externa:</span>
+                <span class="detail-value mono text-highlight">/mnt/icloud/photos (ro)</span>
+              </div>
+            </div>
+
+            <div class="card-footer">
+              <div class="action-buttons">
+                <button class="btn btn-primary btn-sm" onclick="controlService('immich', 'restart')">
+                  Reiniciar
+                </button>
+                <a href="http://localhost:2283" target="_blank" class="btn btn-outline btn-sm">
+                  Abrir Galeria Immich
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 3: Samba SMB Server -->
+          <article class="service-card" id="card-samba">
+            <div class="card-header">
+              <div class="service-icon icon-samba">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                </svg>
+              </div>
+              <div class="service-title-wrap">
+                <div class="service-title-row">
+                  <h3>Samba SMB Bridge</h3>
+                  <span class="status-pill status-loading" id="pill-samba">Verificando...</span>
+                </div>
+                <p class="service-sub">dockurr/samba • Conexão nativa com iPhone</p>
+              </div>
+            </div>
+
+            <div class="service-body">
+              <div class="detail-row">
+                <span class="detail-label">Status do Servidor:</span>
+                <span class="detail-value mono" id="statusText-samba">-</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Porta SMB:</span>
+                <span class="detail-value mono">4445 (TCP)</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">URL para iPhone:</span>
+                <span class="detail-value copy-chip" id="smbUrlChip" onclick="copySmbUrl()" title="Clique para copiar">
+                  <span id="smbUrlText">smb://192.168.0.109:4445</span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                  </svg>
+                </span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Compartilhamento:</span>
+                <span class="detail-value mono">iCloud-Backup (/shared)</span>
+              </div>
+            </div>
+
+            <div class="card-footer">
+              <div class="action-buttons">
+                <button class="btn btn-primary btn-sm" onclick="controlService('samba', 'restart')">
+                  Reiniciar
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="switchTab('tab-iphone')">
+                  Ver Passo a Passo iOS
+                </button>
+              </div>
+            </div>
+          </article>
+
+        </div>
+
+        <!-- Architecture Flow Banner -->
+        <div class="architecture-banner">
+          <div class="arch-col">
+            <div class="arch-badge">1. Sincronização</div>
+            <h4>iCloud Sync Engine</h4>
+            <p>Conecta à conta Apple, valida 2FA com proteção de senha e sincroniza Fotos e Documentos.</p>
+          </div>
+          <div class="arch-arrow">&rarr;</div>
+          <div class="arch-col">
+            <div class="arch-badge">2. Visualização IA</div>
+            <h4>Immich Gallery</h4>
+            <p>Monta o volume do iCloud em <code>/mnt/icloud</code> e cataloga com IA e busca semântica.</p>
+          </div>
+          <div class="arch-arrow">&rarr;</div>
+          <div class="arch-col">
+            <div class="arch-badge">3. Conexão Direta</div>
+            <h4>Samba SMB iOS</h4>
+            <p>Permite que qualquer iPhone envie/baixe arquivos pelo app nativo <em>Arquivos</em>.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: UNIFIED USER ALIGNMENT -->
+      <section id="tab-users" class="tab-pane" role="tabpanel">
+        <div class="pane-header">
+          <div>
+            <h2>Alinhamento Unificado de Usuários</h2>
+            <p class="pane-sub">
+              Vincule a conta do <strong>iCloud</strong>, o acesso do <strong>Immich</strong> e as credenciais do <strong>Samba</strong> para cada usuário/dispositivo.
+            </p>
+          </div>
+          <button class="btn btn-primary" onclick="openUserModal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Novo Usuário Alinhado
+          </button>
+        </div>
+
+        <div class="users-list" id="usersList">
+          <div class="empty-state">Carregando usuários...</div>
+        </div>
+      </section>
+
+      <!-- TAB 3: IPHONE CONNECTION GUIDE -->
+      <section id="tab-iphone" class="tab-pane" role="tabpanel">
+        <div class="iphone-guide-wrapper">
+          <div class="guide-info">
+            <h2>Como conectar o iPhone ao Servidor Samba</h2>
+            <p class="guide-desc">
+              O iOS possui suporte nativo ao protocolo SMB através do aplicativo nativo <strong>Arquivos (Files)</strong>. Não é necessário instalar nenhum aplicativo de terceiros.
+            </p>
+
+            <div class="connection-box">
+              <div class="conn-header">Dados de Conexão no iPhone</div>
+              <div class="conn-grid">
+                <div class="conn-item">
+                  <span class="conn-label">Endereço do Servidor:</span>
+                  <div class="conn-value-copy">
+                    <code id="guideSmbAddress">smb://192.168.0.109:4445</code>
+                    <button class="btn btn-copy btn-xs" onclick="copyText(document.getElementById('guideSmbAddress').innerText)">Copiar</button>
+                  </div>
+                </div>
+                <div class="conn-item">
+                  <span class="conn-label">Nome do Compartilhamento:</span>
+                  <code id="guideShareName">iCloud-Backup</code>
+                </div>
+                <div class="conn-item">
+                  <span class="conn-label">Rede Wi-Fi:</span>
+                  <span>Certifique-se de estar na mesma rede Wi-Fi do computador</span>
+                </div>
+              </div>
+            </div>
+
+            <ol class="steps-list">
+              <li>
+                <div class="step-num">1</div>
+                <div class="step-content">
+                  <strong>Abra o aplicativo "Arquivos" no iPhone</strong>
+                  <p>O aplicativo padrão com ícone de pasta azul presente em todos os iPhones.</p>
+                </div>
+              </li>
+              <li>
+                <div class="step-num">2</div>
+                <div class="step-content">
+                  <strong>Toque no menu de opções (...)</strong>
+                  <p>Na aba <em>Explorar</em> (Browse), toque no ícone de três pontinhos no canto superior direito.</p>
+                </div>
+              </li>
+              <li>
+                <div class="step-num">3</div>
+                <div class="step-content">
+                  <strong>Selecione "Conectar ao Servidor"</strong>
+                  <p>Digite o endereço acima: <code class="inline-code" id="stepSmbUrl">smb://192.168.0.109:4445</code> e toque em <strong>Conectar</strong>.</p>
+                </div>
+              </li>
+              <li>
+                <div class="step-num">4</div>
+                <div class="step-content">
+                  <strong>Escolha "Usuário Registrado" e digite as credenciais</strong>
+                  <p>Use o usuário e a senha cadastrados na aba <em>Alinhamento de Usuários</em>.</p>
+                </div>
+              </li>
+              <li>
+                <div class="step-num">5</div>
+                <div class="step-content">
+                  <strong>Acesso Liberado!</strong>
+                  <p>O volume do iCloud aparecerá na aba Explorar. Você poderá copiar fotos e documentos diretamente para o servidor.</p>
+                </div>
+              </li>
+            </ol>
+          </div>
+
+          <div class="guide-qr-card">
+            <h3>Conexão Rápida</h3>
+            <p>Escaneie ou visualize o QR Code de conexão:</p>
+            <div class="qr-canvas-wrap">
+              <canvas id="qrCanvas" width="180" height="180"></canvas>
+            </div>
+            <span class="qr-caption" id="qrCaption">smb://192.168.0.109:4445</span>
+            <div class="mt-4">
+              <button class="btn btn-secondary btn-sm w-full" onclick="copySmbUrl()">Copiar Link do Servidor</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: REAL-TIME LOGS -->
+      <section id="tab-logs" class="tab-pane" role="tabpanel">
+        <div class="logs-container">
+          <div class="logs-toolbar">
+            <div class="logs-selector">
+              <label for="selectLogContainer">Container:</label>
+              <select id="selectLogContainer" onchange="fetchLogs()">
+                <option value="icloud">icloud (iCloud Sync Engine)</option>
+                <option value="immich_server">immich_server (Immich Principal)</option>
+                <option value="immich_machine_learning">immich_machine_learning (Immich IA/ML)</option>
+                <option value="samba">samba (Servidor SMB iOS)</option>
+                <option value="immich_postgres">immich_postgres (Banco Vetorial)</option>
+                <option value="immich_redis">immich_redis (Cache Valkey)</option>
+              </select>
+            </div>
+
+            <div class="logs-actions">
+              <label class="toggle-wrap">
+                <input type="checkbox" id="chkAutoRefresh" checked>
+                <span>Auto-atualizar (5s)</span>
+              </label>
+              <button class="btn btn-secondary btn-sm" onclick="fetchLogs()">
+                Atualizar Logs
+              </button>
+            </div>
+          </div>
+
+          <pre class="terminal-view" id="terminalLogs">Carregando logs...</pre>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Dialog Modal: Novo/Editar Usuário Unificado -->
+  <dialog id="userDialog" closedby="any" aria-labelledby="dialogTitle">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="dialogTitle">Alinhar Novo Usuário</h3>
+        <button type="button" class="btn-close" onclick="closeUserModal()" aria-label="Fechar">&times;</button>
+      </div>
+
+      <form id="userForm" onsubmit="handleUserSubmit(event)">
+        <input type="hidden" id="userId" name="id">
+
+        <div class="form-section">
+          <h4>👤 Identificação do Usuário & Dispositivo</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="userName">Nome do Proprietário *</label>
+              <input type="text" id="userName" name="name" required placeholder="Ex: Usuário Principal">
+            </div>
+            <div class="form-group">
+              <label for="userDevice">Dispositivo</label>
+              <input type="text" id="userDevice" name="device" placeholder="Ex: iPhone 15 Pro Max">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h4>🍏 1. Conta iCloud (Backup de Fotos & Drive)</h4>
+          <div class="form-group">
+            <label for="userIcloudEmail">ID Apple / E-mail iCloud *</label>
+            <input type="email" id="userIcloudEmail" name="icloud_email" required placeholder="usuario@icloud.com">
+            <span class="field-hint">Usado para conectar na API do iCloud e sincronizar arquivos.</span>
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" id="userApplyIcloud" name="apply_to_icloud" checked>
+              <span>Aplicar este e-mail como padrão no motor de sincronização iCloud</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h4>🖼️ 2. Acesso Immich (Galeria de Fotos)</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="userImmichEmail">E-mail no Immich</label>
+              <input type="email" id="userImmichEmail" name="immich_email" placeholder="usuario@icloud.com">
+            </div>
+            <div class="form-group">
+              <label for="userImmichUser">Nome de Usuário</label>
+              <input type="text" id="userImmichUser" name="immich_user" placeholder="usuario">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h4>📁 3. Acesso Samba SMB (App Arquivos do iOS)</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="userSambaUser">Usuário Samba *</label>
+              <input type="text" id="userSambaUser" name="samba_user" required placeholder="usuario">
+            </div>
+            <div class="form-group">
+              <label for="userSambaPass">Senha Samba *</label>
+              <input type="password" id="userSambaPass" name="samba_pass" required placeholder="senha123">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="userSambaShare">Nome do Compartilhamento</label>
+            <input type="text" id="userSambaShare" name="samba_share" value="iCloud-Backup" readonly>
+            <span class="field-hint">Mapeado diretamente para o volume de dados do iCloud (<code>/shared</code>).</span>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeUserModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="btnSaveUser">Salvar e Alinhar Serviços</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

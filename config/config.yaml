@@ -1,0 +1,34 @@
+app:
+  logger:
+    level: "info"
+    filename: "/config/icloud.log"
+  credentials:
+    # Insira aqui o seu ID Apple / e-mail da conta iCloud
+    username: "seu-email@icloud.com"
+    retry_login_interval: 600
+  root: "/icloud"
+  web_ui:
+    enabled: true
+    host: "0.0.0.0"
+    port: 8080
+
+drive:
+  destination: "drive"
+  remove_obsolete: false
+  sync_interval: 300
+  # Exemplo de filtros opcionais:
+  # filters:
+  #   folders:
+  #     - "Documentos"
+  #   file_extensions:
+  #     - "pdf"
+
+photos:
+  destination: "photos"
+  remove_obsolete: false
+  sync_interval: 500
+  all_albums: false
+  folder_format: "%Y/%m"
+  filters:
+    file_sizes:
+      - "original"

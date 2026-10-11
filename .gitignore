@@ -1,0 +1,12 @@
+# Ignorar dados sincronizados e arquivos sensíveis
+config/session_data/
+config/python_keyring/
+config/*.log
+icloud/
+.env
+node_modules/
+dashboard/data/auth.json
+dashboard/data/users.json
+dashboard/data/samba_users.conf
+*.log
+
