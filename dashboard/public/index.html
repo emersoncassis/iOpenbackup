@@ -38,7 +38,7 @@
       <!-- Form Setup (Primeiro Acesso) -->
       <form id="setupForm" class="auth-form" style="display: none;" onsubmit="handleSetupSubmit(event)">
         <div class="auth-badge-info">
-          🛡️ <strong>Primeiro Acesso:</strong> Defina o usuário e a senha mestra para proteger o painel e o acesso ao <strong>iCloud Sync Engine</strong>.
+          <strong>Primeiro Acesso:</strong> Defina o usuário e a senha mestra para proteger o painel e o acesso ao <strong>iCloud Sync Engine</strong>.
         </div>
 
         <div class="form-group">
@@ -106,7 +106,10 @@
           <span id="hostIpText">IP: Carregando...</span>
         </div>
         <div class="user-session-chip" id="userSessionChip" title="Usuário autenticado">
-          <span class="session-avatar">👤</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
           <span id="sessionUsername">admin</span>
         </div>
         <button id="btnRestartAll" class="btn btn-secondary btn-sm" title="Reiniciar todos os containers">
@@ -211,7 +214,7 @@
               </div>
               <div class="detail-row">
                 <span class="detail-label">Segurança:</span>
-                <span class="detail-value text-highlight" style="font-size:12px;">🔒 Protegido com Senha da Dashboard</span>
+                <span class="detail-value text-highlight" style="font-size:12px;">Protegido com Senha da Dashboard</span>
               </div>
               <div class="detail-row">
                 <span class="detail-label">Destino do Backup:</span>
@@ -525,7 +528,7 @@
         <input type="hidden" id="userId" name="id">
 
         <div class="form-section">
-          <h4>👤 Identificação do Usuário & Dispositivo</h4>
+          <h4>Identificação do Usuário e Dispositivo</h4>
           <div class="form-row">
             <div class="form-group">
               <label for="userName">Nome do Proprietário *</label>
@@ -539,7 +542,7 @@
         </div>
 
         <div class="form-section">
-          <h4>🍏 1. Conta iCloud (Backup de Fotos & Drive)</h4>
+          <h4>1. Conta iCloud (Backup de Fotos e Drive)</h4>
           <div class="form-group">
             <label for="userIcloudEmail">ID Apple / E-mail iCloud *</label>
             <input type="email" id="userIcloudEmail" name="icloud_email" required placeholder="usuario@icloud.com">
@@ -554,7 +557,7 @@
         </div>
 
         <div class="form-section">
-          <h4>🖼️ 2. Acesso Immich (Galeria de Fotos)</h4>
+          <h4>2. Acesso Immich (Galeria de Fotos)</h4>
           <div class="form-row">
             <div class="form-group">
               <label for="userImmichEmail">E-mail no Immich</label>
@@ -568,7 +571,7 @@
         </div>
 
         <div class="form-section">
-          <h4>📁 3. Acesso Samba SMB (App Arquivos do iOS)</h4>
+          <h4>3. Acesso Samba SMB (App Arquivos do iOS)</h4>
           <div class="form-row">
             <div class="form-group">
               <label for="userSambaUser">Usuário Samba *</label>

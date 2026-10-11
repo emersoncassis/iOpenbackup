@@ -33,7 +33,7 @@ const colors = {
 function banner() {
   console.log(`
 ${colors.cyan}${colors.bold}  ==============================================================${colors.reset}
-${colors.cyan}${colors.bold}         📱 iOpenbackup - CLI & Instalador NPX                  ${colors.reset}
+${colors.cyan}${colors.bold}            iOpenbackup - CLI & Instalador NPX                  ${colors.reset}
 ${colors.dim}     Backup Privado & Soberania de Dados para iPhones com IA     ${colors.reset}
 ${colors.cyan}${colors.bold}  ==============================================================${colors.reset}
 `);
@@ -185,14 +185,14 @@ async function startStack(targetDir = CWD) {
   const dashboardPath = path.join(targetDir, 'dashboard', 'server.js');
 
   console.log(`\n${colors.green}${colors.bold}==============================================================${colors.reset}`);
-  console.log(`${colors.green}${colors.bold}       🎉 iOpenbackup está ONLINE e pronto para uso!           ${colors.reset}`);
+  console.log(`${colors.green}${colors.bold}       [OK] iOpenbackup está ONLINE e pronto para uso!         ${colors.reset}`);
   console.log(`${colors.green}${colors.bold}==============================================================${colors.reset}`);
   console.log(`\n${colors.bold}Acessos disponíveis:${colors.reset}`);
-  console.log(`  🎛️  ${colors.cyan}Dashboard Central:${colors.reset}    http://localhost:8000  (ou http://${hostIp}:8000)`);
-  console.log(`  🍏  ${colors.cyan}iCloud 2FA Proxy:${colors.reset}     http://localhost:8000/icloud-proxy/`);
-  console.log(`  🖼️  ${colors.cyan}Immich Photos IA:${colors.reset}     http://localhost:2283  (ou http://${hostIp}:2283)`);
-  console.log(`  📁  ${colors.cyan}Samba SMB (iPhone):${colors.reset}   smb://${hostIp}:4445`);
-  console.log(`\n${colors.yellow}👉 Abra http://localhost:8000 para definir seu usuário e senha mestra.${colors.reset}\n`);
+  console.log(`  [-] ${colors.cyan}Dashboard Central:${colors.reset}    http://localhost:8000  (ou http://${hostIp}:8000)`);
+  console.log(`  [-] ${colors.cyan}iCloud 2FA Proxy:${colors.reset}     http://localhost:8000/icloud-proxy/`);
+  console.log(`  [-] ${colors.cyan}Immich Photos IA:${colors.reset}     http://localhost:2283  (ou http://${hostIp}:2283)`);
+  console.log(`  [-] ${colors.cyan}Samba SMB (iPhone):${colors.reset}   smb://${hostIp}:4445`);
+  console.log(`\n${colors.yellow}[*] Abra http://localhost:8000 para definir seu usuário e senha mestra.${colors.reset}\n`);
 
   // Open browser automatically
   setTimeout(() => {

@@ -1,11 +1,11 @@
-# 📱 iOpenbackup
+# iOpenbackup
 
 > **Plataforma Aberta e Unificada para Soberania e Backup Automático de iPhones**  
 > *Sua nuvem privada, seus dados sob seu controle. Sem limites pagos, sem amarras proprietárias.*
 
 ---
 
-## 🕊️ O Manifesto iOpenbackup
+## O Manifesto iOpenbackup
 
 Todos os usuários de iPhone enfrentam em algum momento a mesma dor: **o limite de armazenamento esgotado no iCloud**, os avisos insistentes de assinatura mensal e a burocracia cansativa para extrair fotos, vídeos e arquivos originais sem perder qualidade ou metadados.
 
@@ -16,29 +16,29 @@ Acreditamos que:
 2. **Simplicidade não deve custar privacidade:** Fazer backup do seu iPhone não precisa ser um pesadelo técnico de comandos manuais. A sincronização deve ser automatizada, a visualização deve ser moderna e a conexão deve ser nativa.
 3. **O código aberto liberta:** Esta plataforma é **100% aberta, livre e modificável**. Qualquer pessoa no mundo pode subir esta stack, inspecionar cada linha de código, adaptar para sua realidade e evoluir a ferramenta.
 
-Se você também cansou das barreiras das nuvens proprietárias, o **iOpenbackup** foi feito para você. 💙
+Se você também cansou das barreiras das nuvens proprietárias, o **iOpenbackup** foi feito para você.
 
 ---
 
-## 📸 Demonstração Visual da Plataforma
+## Demonstração Visual da Plataforma
 
 <p align="center">
   <img src="docs/screenshots/02-dashboard-principal.png" alt="Dashboard Principal do iOpenbackup" width="100%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
 </p>
 
-### 🛡️ 1. Primeiro Acesso com Proteção de Senha Mestra & Fundo Azul Pulsante
+### 1. Primeiro Acesso com Proteção de Senha Mestra & Fundo Azul Pulsante
 Interface de primeiro acesso com hash criptográfico PBKDF2 (SHA-512) para proteger o painel e o motor do iCloud:
 <p align="center">
   <img src="docs/screenshots/01-primeiro-acesso.png" alt="Primeiro Acesso e Autenticação Mestra" width="85%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
 </p>
 
-### 📱 2. Conexão Nativa do iPhone (App Arquivos / Files)
+### 2. Conexão Nativa do iPhone (App Arquivos / Files)
 Instruções integradas para conectar o iPhone via SMB nativo do iOS, com QR Code dinâmico e endereço local:
 <p align="center">
   <img src="docs/screenshots/03-conexao-iphone.png" alt="Guia de Conexão do iPhone" width="85%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
 </p>
 
-### 👥 3. Alinhamento Unificado de Usuários
+### 3. Alinhamento Unificado de Usuários
 Central para alinhar contas de Apple ID (iCloud), credenciais do Immich e permissões Samba do iOS:
 <p align="center">
   <img src="docs/screenshots/04-alinhamento-usuarios.png" alt="Alinhamento de Usuários" width="85%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
@@ -46,19 +46,19 @@ Central para alinhar contas de Apple ID (iCloud), credenciais do Immich e permis
 
 ---
 
-## 🏗️ Módulos da Stack & Créditos Open Source
+## Módulos da Stack & Créditos Open Source
 
 O **iOpenbackup** reúne o melhor do ecossistema open-source mundial em uma arquitetura harmoniosa e pronta para produção. Cada módulo desempenha um papel essencial com os devidos créditos aos seus criadores:
 
 | Módulo | Projeto & Criadores | Papel na Plataforma |
 | :--- | :--- | :--- |
-| 🍏 **iCloud Sync Engine** | [mandarons/icloud-docker](https://github.com/mandarons/icloud-docker)<br>*(Criado por Mandar Patil & comunidade)* | Sincronização automatizada contínua com a nuvem Apple: baixa fotos, live photos, álbuns e arquivos do iCloud Drive em segundo plano. |
-| 🖼️ **Immich AI Photos** | [immich-app/immich](https://github.com/immich-app/immich)<br>*(Criado por Alex Tran & time Immich)* | Galeria de fotos moderna de alta performance com inteligência artificial, reconhecimento facial, busca semântica, álbuns e linha do tempo. |
-| 📁 **Samba SMB Server** | [dockurr/samba](https://github.com/dockur/samba)<br>*(Criado pela equipe Dockurr)* | Servidor SMB leve e ágil que viabiliza a conexão direta e nativa do iPhone via app **Arquivos (Files)** sem instalar nada extra no aparelho. |
-| 🗄️ **PostgreSQL + VectorChord** | [immich-app/postgres](https://github.com/immich-app/immich) | Banco de dados relacional de alta confiabilidade com suporte a índices vetoriais para buscas inteligentes de imagens via embeddings. |
-| ⚡ **Valkey / Redis** | [valkey-io/valkey](https://github.com/valkey-io/valkey) | Gerenciamento de filas de tarefas assíncronas, transcodificação de vídeos e cache ultrarrápido. |
+| **iCloud Sync Engine** | [mandarons/icloud-docker](https://github.com/mandarons/icloud-docker)<br>*(Criado por Mandar Patil & comunidade)* | Sincronização automatizada contínua com a nuvem Apple: baixa fotos, live photos, álbuns e arquivos do iCloud Drive em segundo plano. |
+| **Immich AI Photos** | [immich-app/immich](https://github.com/immich-app/immich)<br>*(Criado por Alex Tran & time Immich)* | Galeria de fotos moderna de alta performance com inteligência artificial, reconhecimento facial, busca semântica, álbuns e linha do tempo. |
+| **Samba SMB Server** | [dockurr/samba](https://github.com/dockur/samba)<br>*(Criado pela equipe Dockurr)* | Servidor SMB leve e ágil que viabiliza a conexão direta e nativa do iPhone via app **Arquivos (Files)** sem instalar nada extra no aparelho. |
+| **PostgreSQL + VectorChord** | [immich-app/postgres](https://github.com/immich-app/immich) | Banco de dados relacional de alta confiabilidade com suporte a índices vetoriais para buscas inteligentes de imagens via embeddings. |
+| **Valkey / Redis** | [valkey-io/valkey](https://github.com/valkey-io/valkey) | Gerenciamento de filas de tarefas assíncronas, transcodificação de vídeos e cache ultrarrápido. |
 
-### 🛠️ Arquitetura Integrada & Orquestração
+### Arquitetura Integrada & Orquestração
 - **Idealizador & Mantenedor da Stack Unificada:** **Emerson Carvalho** ([@emersoncassis](https://github.com/emersoncassis))
 - **Desenvolvimento da Central iOpenbackup:**
   - **Dashboard Central Unificado:** Interface moderna e responsiva para monitoramento de saúde de todos os serviços.
@@ -68,7 +68,7 @@ O **iOpenbackup** reúne o melhor do ecossistema open-source mundial em uma arqu
 
 ---
 
-## 🧭 Visão Geral da Arquitetura
+## Visão Geral da Arquitetura
 
 ```text
        ┌────────────────────────────────────────────────────────┐
@@ -97,13 +97,13 @@ O **iOpenbackup** reúne o melhor do ecossistema open-source mundial em uma arqu
 
 ---
 
-## ⚡ Início Rápido (Playbook & 1-Click Deploy)
+## Início Rápido (Playbook & 1-Click Deploy)
 
 A plataforma foi arquitetada para subir com o mínimo de esforço humano, seja na sua máquina local ou em qualquer servidor VPS na nuvem (Hostinger, Hetzner, AWS, etc.).
 
 ---
 
-### Opção 1: ⚡ 1-Comando via NPX (Recomendado para Qualquer Sistema)
+### Opção 1: 1-Comando via NPX (Recomendado para Qualquer Sistema)
 Com o Node.js instalado, você pode executar o instalador oficial diretamente com um único comando:
 
 ```bash
@@ -119,7 +119,7 @@ npx iopenbackup
 
 ---
 
-### Opção 2: 🐧 1-Click Playbook para Linux / VPS (Hostinger, Ubuntu, Debian)
+### Opção 2: 1-Click Playbook para Linux / VPS (Hostinger, Ubuntu, Debian)
 Ideal para rodar em um servidor VPS ou máquina dedicada:
 
 ```bash
@@ -140,7 +140,7 @@ sudo ./deploy.sh
 
 ---
 
-### Opção 3: 🪟 Windows (Local)
+### Opção 3: Windows (Local)
 Ideal para rodar no seu computador pessoal conectado ao mesmo Wi-Fi do iPhone:
 
 1. Clone o repositório ou baixe o ZIP.
@@ -152,7 +152,7 @@ Ideal para rodar no seu computador pessoal conectado ao mesmo Wi-Fi do iPhone:
 
 ---
 
-### Opção 4: 🚀 Provisionamento via Ansible Playbook
+### Opção 4: Provisionamento via Ansible Playbook
 Para administradores de sistemas que desejam gerenciar infraestrutura como código:
 
 ```bash
@@ -161,7 +161,7 @@ ansible-playbook -i "IP_DO_SERVIDOR," playbook.yml -u root
 
 ---
 
-### 🌐 Deploy Rápido na Hostinger VPS
+### Deploy Rápido na Hostinger VPS
 Na Hostinger, você pode subir o iOpenbackup em poucos cliques:
 1. No painel da Hostinger, crie uma VPS e escolha o template do sistema operacional: **"Ubuntu 22.04 64bit com Docker pré-instalado"**.
 2. Acesse a VPS via SSH pelo terminal da Hostinger ou pelo seu terminal:
@@ -183,18 +183,18 @@ Na Hostinger, você pode subir o iOpenbackup em poucos cliques:
 
 ---
 
-## 🌐 Endereços e Portas
+## Endereços e Portas
 
 | Serviço | URL Local | Na Rede Wi-Fi / LAN | Segurança |
 | :--- | :--- | :--- | :---: |
-| 🎛️ **Dashboard iOpenbackup** | `http://localhost:8000` | `http://<IP-DO-HOST>:8000` | 🔒 Senha Mestra |
-| 🍏 **iCloud Sync Engine** | `http://localhost:8000/icloud-proxy/` | `http://<IP-DO-HOST>:8000/icloud-proxy/` | 🔒 Proxy Protegido |
-| 🖼️ **Immich Galeria de Fotos** | `http://localhost:2283` | `http://<IP-DO-HOST>:2283` | 🔒 Usuário Immich |
-| 📁 **Samba SMB (iPhone)** | `smb://localhost:4445` | `smb://<IP-DO-HOST>:4445` | 🔒 Usuário Samba |
+| **Dashboard iOpenbackup** | `http://localhost:8000` | `http://<IP-DO-HOST>:8000` | Senha Mestra |
+| **iCloud Sync Engine** | `http://localhost:8000/icloud-proxy/` | `http://<IP-DO-HOST>:8000/icloud-proxy/` | Proxy Protegido |
+| **Immich Galeria de Fotos** | `http://localhost:2283` | `http://<IP-DO-HOST>:2283` | Usuário Immich |
+| **Samba SMB (iPhone)** | `smb://localhost:4445` | `smb://<IP-DO-HOST>:4445` | Usuário Samba |
 
 ---
 
-## 📱 Conectando o iPhone pelo App Nativo "Arquivos"
+## Conectando o iPhone pelo App Nativo "Arquivos"
 
 Você não precisa de aplicativos proprietários ou adicionais no iOS. O iPhone possui cliente SMB embutido de fábrica:
 
@@ -213,7 +213,7 @@ Você não precisa de aplicativos proprietários ou adicionais no iOS. O iPhone 
 
 ---
 
-## 🔑 Recuperação e Reset de Senha Mestra
+## Recuperação e Reset de Senha Mestra
 
 Se você esquecer a senha mestra da dashboard, não se preocupe: **seus dados e fotos sincronizados nunca são apagados**. 
 
@@ -229,13 +229,13 @@ O sistema retornará imediatamente para a tela de **Configuração do Primeiro A
 
 ---
 
-## 🤝 Como Contribuir e Evoluir a Plataforma
+## Como Contribuir e Evoluir a Plataforma
 
 O **iOpenbackup** é um projeto de código aberto mantido para a comunidade. Toda ajuda é muito bem-vinda:
 
-- 🐛 **Encontrou um bug?** [Abra uma Issue](https://github.com/emersoncassis/iOpenbackup/issues).
-- 💡 **Tem uma ideia de nova funcionalidade?** Compartilhe nas discussões ou crie uma Issue.
-- 💻 **Quer contribuir com código?**
+- **Encontrou um bug?** [Abra uma Issue](https://github.com/emersoncassis/iOpenbackup/issues).
+- **Tem uma ideia de nova funcionalidade?** Compartilhe nas discussões ou crie uma Issue.
+- **Quer contribuir com código?**
   1. Faça um Fork do projeto
   2. Crie uma branch para sua feature (`git checkout -b feature/minha-melhoria`)
   3. Faça o commit das suas alterações (`git commit -m 'Adiciona suporte a sincronização incremental'`)
@@ -244,7 +244,7 @@ O **iOpenbackup** é um projeto de código aberto mantido para a comunidade. Tod
 
 ---
 
-## 📄 Licença
+## Licença
 
 Distribuído sob a licença **MIT**. Consulte o arquivo `LICENSE` para mais detalhes.
 
@@ -252,5 +252,5 @@ Distribuído sob a licença **MIT**. Consulte o arquivo `LICENSE` para mais deta
 
 <p align="center">
   <b>iOpenbackup</b> — Liberdade, privacidade e soberania para o backup do seu iPhone.<br>
-  Construído com ❤️ pela comunidade open-source.
+  Construído pela comunidade open-source.
 </p>

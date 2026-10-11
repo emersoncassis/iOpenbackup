@@ -19,7 +19,7 @@ clear
 
 echo -e "${CYAN}${BOLD}"
 echo "  ================================================================"
-echo "          📱 iOpenbackup - Automação de Instalação (1-Click)"
+echo "          iOpenbackup - Automação de Instalação (1-Click)"
 echo "            Backup Automatizado e Privado de iPhones com IA"
 echo "  ================================================================"
 echo -e "${NC}"
@@ -118,12 +118,12 @@ echo -e "${GREEN}[✓] Serviço do Dashboard ativo e configurado para iniciar co
 #  RESUMO FINAL & INSTRUÇÕES
 # ==============================================================================
 echo -e "\n${GREEN}${BOLD}================================================================${NC}"
-echo -e "${GREEN}${BOLD}     🎉 INSTALAÇÃO DO iOpenbackup CONCLUÍDA COM SUCESSO!        ${NC}"
+echo -e "${GREEN}${BOLD}     [OK] INSTALAÇÃO DO iOpenbackup CONCLUÍDA COM SUCESSO!     ${NC}"
 echo -e "${GREEN}${BOLD}================================================================${NC}"
 echo -e "\n${BOLD}Acesse os serviços pelo navegador ou iPhone:${NC}"
-echo -e "  🎛️  ${CYAN}Dashboard Central:${NC}  http://${SERVER_IP}:8000"
-echo -e "  🍏  ${CYAN}iCloud 2FA Proxy:${NC}   http://${SERVER_IP}:8000/icloud-proxy/"
-echo -e "  🖼️  ${CYAN}Immich Photos AI:${NC}   http://${SERVER_IP}:2283"
-echo -e "  📁  ${CYAN}Samba SMB (iPhone):${NC} smb://${SERVER_IP}:4445"
-echo -e "\n${YELLOW}👉 No primeiro acesso em http://${SERVER_IP}:8000, defina sua Senha Mestra.${NC}"
+echo -e "  [-] ${CYAN}Dashboard Central:${NC}  http://${SERVER_IP}:8000"
+echo -e "  [-] ${CYAN}iCloud 2FA Proxy:${NC}   http://${SERVER_IP}:8000/icloud-proxy/"
+echo -e "  [-] ${CYAN}Immich Photos AI:${NC}   http://${SERVER_IP}:2283"
+echo -e "  [-] ${CYAN}Samba SMB (iPhone):${NC} smb://${SERVER_IP}:4445"
+echo -e "\n${YELLOW}[*] No primeiro acesso em http://${SERVER_IP}:8000, defina sua Senha Mestra.${NC}"
 echo -e "${CYAN}================================================================${NC}\n"

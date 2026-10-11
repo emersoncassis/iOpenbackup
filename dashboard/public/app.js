@@ -386,7 +386,7 @@ function renderUsersList(users) {
             <div class="user-avatar">${initial}</div>
             <div class="user-name-wrap">
               <h3>${escapeHtml(u.name)}</h3>
-              <span class="user-device-badge">📱 ${escapeHtml(u.device || 'iPhone')}</span>
+              <span class="user-device-badge">${escapeHtml(u.device || 'iPhone')}</span>
             </div>
           </div>
           <div class="user-card-actions">
@@ -406,21 +406,21 @@ function renderUsersList(users) {
         <div class="alignment-grid">
           <!-- 1. iCloud -->
           <div class="align-box">
-            <span class="align-title icloud-t">🍏 Backup iCloud</span>
+            <span class="align-title icloud-t">Backup iCloud</span>
             <span class="align-val">${escapeHtml(u.icloud_email || 'Não configurado')}</span>
             <span class="align-sub">Sincroniza Fotos & Drive</span>
           </div>
 
           <!-- 2. Immich -->
           <div class="align-box">
-            <span class="align-title immich-t">🖼️ Galeria Immich</span>
+            <span class="align-title immich-t">Galeria Immich</span>
             <span class="align-val">${escapeHtml(u.immich_email || u.icloud_email || 'Mesmo do iCloud')}</span>
             <span class="align-sub">Usuário: ${escapeHtml(u.immich_user || 'usuario')}</span>
           </div>
 
           <!-- 3. Samba -->
           <div class="align-box">
-            <span class="align-title samba-t">📁 Acesso Samba (SMB)</span>
+            <span class="align-title samba-t">Acesso Samba (SMB)</span>
             <span class="align-val">${escapeHtml(u.samba_user || 'usuario')}</span>
             <span class="align-sub">Pasta: ${escapeHtml(u.samba_share || 'iCloud-Backup')} (/shared)</span>
           </div>
