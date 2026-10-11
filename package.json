@@ -11,6 +11,7 @@
     "stop": "node bin/cli.js stop",
     "status": "node bin/cli.js status",
     "reset": "node bin/cli.js reset",
+    "pull": "bash pull.sh",
     "dashboard": "node dashboard/server.js"
   },
   "keywords": [

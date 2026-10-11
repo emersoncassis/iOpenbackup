@@ -176,6 +176,18 @@ Na Hostinger, você pode subir o iOpenbackup em poucos cliques:
 
 ---
 
+### Deploy via Dokploy, Portainer ou Coolify
+Ao implantar via painéis automatizados como **Dokploy**:
+1. Crie uma aplicação do tipo **Compose** apontando para o repositório oficial:
+   `https://github.com/emersoncassis/iOpenbackup.git`
+2. Para evitar saturação de rede ou timeouts em conexões locais durante o download de modelos pesados de IA, execute o script de pré-download seguro no terminal do servidor:
+   ```bash
+   bash pull.sh
+   ```
+3. No Dokploy, clique em **Deploy**. Os containers subirão de forma instantânea e estável!
+
+---
+
 ### 3. Configurar o Primeiro Acesso (Segurança)
 1. Acesse no navegador: **`http://localhost:8000`** (ou `http://IP-DA-VPS:8000`).
 2. Defina o seu **Usuário Administrador** e sua **Senha Mestra**.
