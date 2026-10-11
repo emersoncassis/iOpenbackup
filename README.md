@@ -33,7 +33,7 @@ O **iOpenbackup** reúne o melhor do ecossistema open-source mundial em uma arqu
 | ⚡ **Valkey / Redis** | [valkey-io/valkey](https://github.com/valkey-io/valkey) | Gerenciamento de filas de tarefas assíncronas, transcodificação de vídeos e cache ultrarrápido. |
 
 ### 🛠️ Arquitetura Integrada & Orquestração
-- **Idealizador & Mantenedor da Stack Unificada:** **Emerson Silva** ([@emersoncassis](https://github.com/emersoncassis))
+- **Idealizador & Mantenedor da Stack Unificada:** **Emerson Carvalho** ([@emersoncassis](https://github.com/emersoncassis))
 - **Desenvolvimento da Central iOpenbackup:**
   - **Dashboard Central Unificado:** Interface moderna e responsiva para monitoramento de saúde de todos os serviços.
   - **Proxy Reverso Autenticado:** Camada de segurança personalizada para blindar a API do motor iCloud (porta interna em loopback), protegendo acessos externos e requisições 2FA.

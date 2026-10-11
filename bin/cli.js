@@ -4,7 +4,7 @@
  * ==============================================================================
  *  iOpenbackup - CLI & NPX Installer
  *  Plataforma Aberta e Unificada para Soberania e Backup Automático de iPhones
- *  Idealizado por Emerson Silva (@emers)
+ *  Idealizado por Emerson Carvalho (@emersoncassis)
  * ==============================================================================
  */
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ==============================================================================
 #  iOpenbackup - 1-Click Deployment Playbook
-#  Idealizado por Emerson Silva (@emers)
+#  Idealizado por Emerson Carvalho (@emersoncassis)
 #  Suporte: Ubuntu / Debian / CentOS / Rocky / AlmaLinux / Hostinger VPS
 # ==============================================================================
 
