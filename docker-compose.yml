@@ -54,6 +54,8 @@ services:
     volumes:
       - immich_model_cache:/cache
     restart: always
+    profiles:
+      - ml
 
   immich-redis:
     container_name: immich_redis
@@ -82,8 +84,8 @@ services:
   # ==========================================
   samba:
     container_name: samba
-    image: dockurr/samba:latest
-    pull_policy: if_not_present
+    build:
+      context: ./samba
     restart: unless-stopped
     environment:
       USER: "backupuser"
