@@ -2,8 +2,6 @@
 # ==============================================================================
 # iOpenbackup - Pre-download Sequencial e Resiliente de Imagens Docker
 # Evita saturacao de rede, timeouts de DNS e TLS handshake timeouts
-# ==============================================================================
-set -e
 
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
@@ -16,16 +14,17 @@ echo -e "${CYAN}================================================================
 echo -e "${CYAN}  iOpenbackup - Pre-download Seguro de Imagens Docker (1 por 1) ${NC}"
 echo -e "${CYAN}================================================================${NC}"
 
-# Otimizar DNS se /etc/docker/daemon.json puder ser configurado
-if [ -w "/etc/docker" ] && [ ! -f "/etc/docker/daemon.json" ]; then
-  echo -e "${BLUE}[*] Otimizando /etc/docker/daemon.json com DNS 1.1.1.1 e 8.8.8.8...${NC}"
+# Configurar Docker daemon para 1 download concorrente e DNS rapido
+if [ -w "/etc/docker" ]; then
+  echo -e "${BLUE}[*] Otimizando /etc/docker/daemon.json para evitar saturacao de rede...${NC}"
   cat << 'EOF' > /etc/docker/daemon.json
 {
-  "max-concurrent-downloads": 2,
+  "max-concurrent-downloads": 1,
   "dns": ["1.1.1.1", "8.8.8.8"]
 }
 EOF
   systemctl restart docker 2>/dev/null || true
+  sleep 2
 fi
 
 IMAGES=(
@@ -44,15 +43,15 @@ for img in "${IMAGES[@]}"; do
   
   TRIES=0
   SUCCESS=false
-  while [ $TRIES -lt 3 ]; do
+  while [ $TRIES -lt 5 ]; do
     TRIES=$((TRIES + 1))
     if docker pull "$img"; then
       SUCCESS=true
       echo -e "${GREEN}[OK] Concluido: ${img}${NC}"
       break
     else
-      echo -e "${YELLOW}[!] Tentativa $TRIES falhou. Aguardando 3s antes de tentar novamente...${NC}"
-      sleep 3
+      echo -e "${YELLOW}[!] Tentativa $TRIES falhou. Aguardando 5s antes de tentar novamente...${NC}"
+      sleep 5
     fi
   done
 

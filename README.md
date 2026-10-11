@@ -180,11 +180,15 @@ Na Hostinger, você pode subir o iOpenbackup em poucos cliques:
 Ao implantar via painéis automatizados como **Dokploy**:
 1. Crie uma aplicação do tipo **Compose** apontando para o repositório oficial:
    `https://github.com/emersoncassis/iOpenbackup.git`
-2. Para evitar saturação de rede ou timeouts em conexões locais durante o download de modelos pesados de IA, execute o script de pré-download seguro no terminal do servidor:
-   ```bash
-   bash pull.sh
-   ```
-3. No Dokploy, clique em **Deploy**. Os containers subirão de forma instantânea e estável!
+2. Clique em **Deploy**. Os serviços essenciais (iCloud Sync + Samba SMB nativo para iPhone) sobem de forma instantânea em segundos sem travar o Raspberry Pi ou a rede.
+3. Se desejar ativar a galeria **Immich AI Photos** no Dokploy:
+   - No terminal SSH do servidor, execute o download sequencial seguro das imagens:
+     ```bash
+     bash pull.sh
+     ```
+   - No Dokploy, na aba **Environment**, adicione a variável:
+     `COMPOSE_PROFILES=immich`
+   - Clique em **Deploy** novamente. O Immich iniciará usando as imagens já baixadas sem nenhum timeout.
 
 ---
 

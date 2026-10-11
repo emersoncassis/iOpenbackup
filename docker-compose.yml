@@ -23,6 +23,8 @@ services:
 
   # ==========================================
   # 2. Immich - Photos, Timeline & AI
+  # Opcional / sob demanda (Profile 'immich')
+  # Para ativar no Dokploy / .env: COMPOSE_PROFILES=immich
   # ==========================================
   immich-server:
     container_name: immich_server
@@ -44,6 +46,8 @@ services:
       - immich-redis
       - immich-postgres
     restart: always
+    profiles:
+      - immich
 
   immich-machine-learning:
     container_name: immich_machine_learning
@@ -56,6 +60,7 @@ services:
     restart: always
     profiles:
       - ml
+      - immich-ml
 
   immich-redis:
     container_name: immich_redis
@@ -64,6 +69,8 @@ services:
     healthcheck:
       test: redis-cli ping | grep -q PONG || exit 1
     restart: always
+    profiles:
+      - immich
 
   immich-postgres:
     container_name: immich_postgres
@@ -78,6 +85,8 @@ services:
       - immich_postgres_data:/var/lib/postgresql/data
     shm_size: 128mb
     restart: always
+    profiles:
+      - immich
 
   # ==========================================
   # 3. Samba SMB Service (iPhone Files App Access)
