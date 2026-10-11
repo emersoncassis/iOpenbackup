@@ -1,26 +1,24 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# iOpenbackup - Dokploy Auto Deploy Script com Bypass Direto de DNS no Hosts
-# Evita qualquer timeout de UDP na porta 53 associando os IPs diretamente
+# iOpenbackup - Dokploy Auto Deploy Script com Correcao de MTU e DNS
 # ==============================================================================
 set -e
 
-echo "[*] Configurando resolucao direta de IPs em /etc/hosts (zero consultas DNS)..."
+# 1. Limpar entradas estaticas que possam ter sido injetadas
 if [ -w "/etc/hosts" ]; then
-  grep -q "ghcr.io" /etc/hosts || cat << 'EOF' >> /etc/hosts
-140.82.112.33 github.com
-140.82.114.34 api.github.com
-4.228.31.152 ghcr.io
-185.199.109.154 pkg-containers.githubusercontent.com
-34.237.181.64 registry-1.docker.io
-172.64.144.78 auth.docker.io
-104.16.100.215 production.cloudflare.docker.com
-EOF
+  sed -i '/ghcr\.io/d;/pkg-containers/d;/registry-1\.docker\.io/d;/production\.cloudflare/d' /etc/hosts 2>/dev/null || true
 fi
 
+# 2. Configurar DNS rapido da Cloudflare
 if [ -w "/etc/resolv.conf" ]; then
-  echo -e "nameserver 1.1.1.1\nnameserver 8.8.8.8" > /etc/resolv.conf || true
+  echo -e "nameserver 1.1.1.1\nnameserver 1.0.0.1" > /etc/resolv.conf || true
 fi
+
+# 3. Corrigir MTU para 1420 (evita perda de pacotes TLS em redes com fibra/PPPoE)
+for iface in $(ip -o link show | awk -F': ' '{print $2}' | grep -v 'lo'); do
+  ip link set dev "$iface" mtu 1420 2>/dev/null || true
+done
+iptables -t mangle -A POSTROUTING -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu 2>/dev/null || true
 
 echo "[*] Subindo containers Docker via Compose..."
 exec docker compose --env-file .env -f ./docker-compose.yml up -d --build --remove-orphans
