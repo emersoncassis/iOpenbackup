@@ -193,6 +193,40 @@ function saveUsers(users) {
   fs.writeFileSync(SAMBA_CONF_FILE, lines.join('\n') + '\n', 'utf8');
 }
 
+function evaluateHardware() {
+  const totalMem = os.totalmem();
+  const freeMem = os.freemem();
+  const totalMemGB = +(totalMem / (1024 ** 3)).toFixed(1);
+  const freeMemGB = +(freeMem / (1024 ** 3)).toFixed(1);
+  const cpuCores = os.cpus()?.length || 1;
+
+  // IA Pesada do Immich (CLIP + Face recognition) consome ~1.5GB a 2GB de RAM
+  // Recomendamos mínimo de 3.8GB (4GB) de RAM total e 0.8GB de RAM livre
+  const isSupported = totalMemGB >= 3.8;
+  const isHealthyFree = freeMemGB >= 0.8;
+  const canEnableAi = isSupported && isHealthyFree;
+
+  let message = '';
+  if (!isSupported) {
+    message = `Hardware limitado (${totalMemGB}GB RAM). IA desabilitada para evitar travamento do servidor.`;
+  } else if (!isHealthyFree) {
+    message = `RAM livre baixa (${freeMemGB}GB de ${totalMemGB}GB). Risco de sobrecarga ao carregar IA.`;
+  } else {
+    message = `Hardware apto (${totalMemGB}GB RAM, ${cpuCores} núcleos). Suporta IA.`;
+  }
+
+  return {
+    totalMemGB,
+    freeMemGB,
+    totalMemMB: Math.round(totalMem / (1024 ** 2)),
+    freeMemMB: Math.round(freeMem / (1024 ** 2)),
+    cpuCores,
+    canEnableAi,
+    isSupported,
+    message
+  };
+}
+
 async function getDockerStatus(req = null) {
   const res = await runCmd('docker ps -a --format "{{json .}}"');
   const containers = [];
@@ -211,6 +245,7 @@ async function getDockerStatus(req = null) {
   };
 
   const hostIp = getHostIP(req);
+  const hardware = evaluateHardware();
   const icloudCont = findContainer('icloud');
   const immichServer = findContainer('immich_server');
   const immichMl = findContainer('immich_machine_learning');
@@ -264,8 +299,14 @@ async function getDockerStatus(req = null) {
         database: parseState(immichDb),
         redis: parseState(immichRedis)
       },
-      description: 'Galeria inteligente de fotos com linha do tempo, IA e reconhecimento facial'
+      aiModule: {
+        running: !!(immichMl && immichMl.State === 'running'),
+        supported: hardware.canEnableAi,
+        reason: hardware.message
+      },
+      description: 'Galeria inteligente de fotos com linha do tempo e IA sob demanda'
     },
+    hardware,
     samba: {
       name: 'Samba SMB (iPhone Files)',
       container: 'samba',
@@ -679,10 +720,31 @@ const server = http.createServer(async (req, res) => {
       } else if (service === 'samba') {
         cmd = `docker ${action} samba`;
       } else if (service === 'immich') {
-        const immichContainers = ['immich_server', 'immich_machine_learning', 'immich_postgres', 'immich_redis'];
-        cmd = `docker ${action} ${immichContainers.join(' ')}`;
+        if (action === 'start') {
+          cmd = 'docker compose up -d immich-server immich-postgres immich-redis || docker start immich_server immich_postgres immich_redis';
+        } else if (action === 'stop') {
+          cmd = 'docker stop immich_server immich_postgres immich_redis immich_machine_learning';
+        } else {
+          cmd = 'docker restart immich_server immich_postgres immich_redis';
+        }
+      } else if (service === 'immich-ai' || service === 'immich-ml') {
+        const hw = evaluateHardware();
+        if (action === 'start') {
+          if (!hw.isSupported) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            return res.end(JSON.stringify({ 
+              success: false, 
+              error: `Hardware insuficiente (${hw.totalMemGB}GB RAM detectados). O módulo de IA requer no mínimo 4GB de RAM para evitar travamento do servidor.` 
+            }));
+          }
+          cmd = 'docker compose --profile ml up -d immich-machine-learning || docker start immich_machine_learning';
+        } else if (action === 'stop') {
+          cmd = 'docker stop immich_machine_learning';
+        } else {
+          cmd = 'docker restart immich_machine_learning';
+        }
       } else if (service === 'all') {
-        cmd = `docker ${action} icloud immich_server immich_machine_learning immich_postgres immich_redis samba`;
+        cmd = 'docker restart icloud samba immich_server immich_postgres immich_redis';
       } else {
         res.writeHead(400, { 'Content-Type': 'application/json' });
         return res.end(JSON.stringify({ success: false, error: 'Serviço desconhecido' }));

@@ -50,9 +50,8 @@ services:
       - "127.0.0.1:8080:8080"
 
   # ==========================================
-  # 2. Immich - Photos, Timeline & AI
-  # Opcional / sob demanda (Profile 'immich')
-  # Para ativar no Dokploy / .env: COMPOSE_PROFILES=immich
+  # 2. Immich - Photos & Gallery (Modo Leve por Padrão)
+  # Visualização simples de fotos, álbuns e linha do tempo
   # ==========================================
   immich-server:
     container_name: immich_server
@@ -65,6 +64,7 @@ services:
       - DB_PASSWORD=postgres
       - DB_DATABASE_NAME=immich
       - REDIS_HOSTNAME=immich_redis
+      - IMMICH_MACHINE_LEARNING_URL=http://immich-machine-learning:3003
     volumes:
       - immich_data:/data
       - icloud_data:/mnt/icloud:ro
@@ -74,9 +74,13 @@ services:
       - immich-redis
       - immich-postgres
     restart: always
-    profiles:
-      - immich
 
+  # ==========================================
+  # 2.1 Módulo Avançado de IA (Machine Learning - Sob Demanda)
+  # Reconhecimento facial, CLIP e busca inteligente
+  # Só deve ser iniciado se o hardware suportar (>= 4GB RAM)
+  # e se o usuário solicitar explicitamente no iOpDash
+  # ==========================================
   immich-machine-learning:
     container_name: immich_machine_learning
     image: ghcr.io/immich-app/immich-machine-learning:release
@@ -97,8 +101,6 @@ services:
     healthcheck:
       test: redis-cli ping | grep -q PONG || exit 1
     restart: always
-    profiles:
-      - immich
 
   immich-postgres:
     container_name: immich_postgres
@@ -113,8 +115,6 @@ services:
       - immich_postgres_data:/var/lib/postgresql/data
     shm_size: 128mb
     restart: always
-    profiles:
-      - immich
 
   # ==========================================
   # 3. Samba SMB Service (iPhone Files App Access)

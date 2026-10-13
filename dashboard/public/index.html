@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=2.2">
+  <link rel="stylesheet" href="styles.css?v=2.3">
 </head>
 <body>
 
@@ -243,7 +243,7 @@
             </div>
           </article>
 
-          <!-- Card 2: Immich Photos -->
+          <!-- Card 2: Immich Photos & Gallery -->
           <article class="service-card" id="card-immich">
             <div class="card-header">
               <div class="service-icon icon-immich">
@@ -255,45 +255,54 @@
               </div>
               <div class="service-title-wrap">
                 <div class="service-title-row">
-                  <h3>Immich AI Photos</h3>
+                  <h3>Immich Photos</h3>
                   <span class="status-pill status-loading" id="pill-immich">Verificando...</span>
                 </div>
-                <p class="service-sub">immich-server • IA, Reconhecimento Facial & Linha do Tempo</p>
+                <p class="service-sub" id="immichModeDesc">Galeria de Fotos • Modo Leve por Padrão</p>
               </div>
             </div>
 
             <div class="service-body">
               <div class="detail-row">
-                <span class="detail-label">Status do Servidor:</span>
+                <span class="detail-label">Status da Galeria:</span>
                 <span class="detail-value mono" id="statusText-immich">-</span>
               </div>
               <div class="detail-row">
-                <span class="detail-label">Porta da Galeria:</span>
-                <span class="detail-value mono">2283 (HTTP)</span>
+                <span class="detail-label">Modo Operacional:</span>
+                <span class="detail-value" id="immichModeBadge">
+                  <span class="sub-badge sub-ok" id="immichModeText">Visualização de Fotos (Leve)</span>
+                </span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Cálculo Hardware:</span>
+                <span class="detail-value mono" id="immichHwStatus">Avaliando RAM...</span>
               </div>
               <div class="detail-row">
                 <span class="detail-label">Microserviços:</span>
                 <span class="detail-value subservices-list" id="immichSubservices">
-                  <span class="sub-badge" id="sub-server">Server</span>
-                  <span class="sub-badge" id="sub-ml">IA/ML</span>
-                  <span class="sub-badge" id="sub-db">Postgres</span>
-                  <span class="sub-badge" id="sub-redis">Valkey</span>
+                  <span class="sub-badge" id="sub-server" title="Galeria Web & Visualização">Web</span>
+                  <span class="sub-badge" id="sub-db" title="PostgreSQL">Banco</span>
+                  <span class="sub-badge" id="sub-redis" title="Valkey/Redis">Cache</span>
+                  <span class="sub-badge" id="sub-ml" title="Machine Learning IA (Opcional)">IA (Pesado)</span>
                 </span>
               </div>
               <div class="detail-row">
-                <span class="detail-label">Biblioteca Externa:</span>
+                <span class="detail-label">Biblioteca:</span>
                 <span class="detail-value mono text-highlight">/mnt/icloud/photos (ro)</span>
               </div>
             </div>
 
             <div class="card-footer">
               <div class="action-buttons">
-                <button class="btn btn-primary btn-sm" onclick="controlService('immich', 'restart')">
-                  Reiniciar
+                <button class="btn btn-primary btn-sm" id="btnImmichGallery" onclick="toggleImmichService()">
+                  Iniciar Galeria
                 </button>
-                <a href="http://localhost:2283" target="_blank" class="btn btn-outline btn-sm">
-                  Abrir Galeria Immich
+                <a href="http://localhost:2283" id="linkImmichGallery" target="_blank" class="btn btn-outline btn-sm">
+                  Abrir Galeria
                 </a>
+                <button class="btn btn-secondary btn-sm" id="btnToggleImmichAi" onclick="toggleImmichAi()" title="Ligar/Desligar módulo pesado de IA">
+                  Ativar Módulo IA
+                </button>
               </div>
             </div>
           </article>
@@ -600,6 +609,6 @@
   <!-- Toast Notification Container -->
   <div id="toastContainer" class="toast-container"></div>
 
-  <script src="app.js?v=2.2"></script>
+  <script src="app.js?v=2.3"></script>
 </body>
 </html>

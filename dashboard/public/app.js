@@ -251,7 +251,7 @@ async function fetchStatus() {
 
     // Update Service Cards
     updateServiceCard('icloud', data.icloud);
-    updateServiceCard('immich', data.immich);
+    updateImmichCard(data.immich, data.hardware);
     updateServiceCard('samba', data.samba);
 
     // Update Stats
@@ -261,14 +261,6 @@ async function fetchStatus() {
     if (data.samba?.running) onlineCount++;
     
     document.getElementById('statActiveServices').innerText = `${onlineCount}/3`;
-
-    // Immich Subservices breakdown
-    if (data.immich?.subservices) {
-      updateSubserviceBadge('sub-server', data.immich.subservices.server?.running);
-      updateSubserviceBadge('sub-ml', data.immich.subservices.ml?.running);
-      updateSubserviceBadge('sub-db', data.immich.subservices.database?.running);
-      updateSubserviceBadge('sub-redis', data.immich.subservices.redis?.running);
-    }
   } catch (err) {
     console.error('Failed to poll status:', err);
   }
@@ -337,6 +329,152 @@ function updateServiceCard(name, serviceData) {
       pill.innerText = serviceData.health === 'healthy' ? 'Online (Saudável)' : 'Online';
     }
     if (statusText) statusText.innerText = serviceData.text || 'Em execução';
+  }
+}
+
+function updateImmichCard(immich, hw) {
+  const pill = document.getElementById('pill-immich');
+  const statusText = document.getElementById('statusText-immich');
+  const modeText = document.getElementById('immichModeText');
+  const hwStatus = document.getElementById('immichHwStatus');
+  const btnGallery = document.getElementById('btnImmichGallery');
+  const linkGallery = document.getElementById('linkImmichGallery');
+  const btnAi = document.getElementById('btnToggleImmichAi');
+
+  const isServerRunning = !!(immich && immich.running);
+  const isAiRunning = !!(immich?.subservices?.ml?.running || immich?.aiModule?.running);
+
+  // 1. Status Pill
+  if (pill) {
+    if (!isServerRunning) {
+      pill.className = 'status-pill status-offline';
+      pill.innerText = 'Offline';
+    } else if (isAiRunning) {
+      pill.className = 'status-pill status-online';
+      pill.innerText = 'Online (Fotos + IA)';
+    } else {
+      pill.className = 'status-pill status-online';
+      pill.innerText = 'Online (Modo Leve)';
+    }
+  }
+
+  // 2. Status Text
+  if (statusText) {
+    statusText.innerText = immich?.text || (isServerRunning ? 'Em execução' : 'Parado');
+  }
+
+  // 3. Operational Mode
+  if (modeText) {
+    if (isAiRunning) {
+      modeText.innerText = 'Modo Completo: Fotos + IA';
+      modeText.className = 'sub-badge sub-ok';
+      modeText.style.background = 'rgba(168, 85, 247, 0.2)';
+      modeText.style.color = '#c084fc';
+    } else if (isServerRunning) {
+      modeText.innerText = 'Modo Leve: Somente Visualização';
+      modeText.className = 'sub-badge sub-ok';
+      modeText.style.background = 'rgba(14, 165, 233, 0.15)';
+      modeText.style.color = '#38bdf8';
+    } else {
+      modeText.innerText = 'Galeria Desativada';
+      modeText.className = 'sub-badge';
+      modeText.style.background = 'rgba(255, 255, 255, 0.06)';
+      modeText.style.color = 'var(--text-muted)';
+    }
+  }
+
+  // 4. Hardware Calculation & Assessment
+  if (hwStatus) {
+    if (hw) {
+      if (hw.isSupported) {
+        hwStatus.innerHTML = `<span class="badge-hw-ok">${hw.totalMemGB}GB RAM (${hw.freeMemGB}GB livre) • Apto</span>`;
+        hwStatus.title = hw.message;
+      } else {
+        hwStatus.innerHTML = `<span class="badge-hw-warn">${hw.totalMemGB}GB RAM • Hardware Limitado</span>`;
+        hwStatus.title = hw.message;
+      }
+    } else {
+      hwStatus.innerText = 'Avaliando...';
+    }
+  }
+
+  // 5. Immich Subservices
+  if (immich?.subservices) {
+    updateSubserviceBadge('sub-server', immich.subservices.server?.running);
+    updateSubserviceBadge('sub-db', immich.subservices.database?.running);
+    updateSubserviceBadge('sub-redis', immich.subservices.redis?.running);
+    
+    const mlBadge = document.getElementById('sub-ml');
+    if (mlBadge) {
+      mlBadge.classList.toggle('sub-ok', isAiRunning);
+      mlBadge.innerText = isAiRunning ? 'IA: Ativa' : 'IA: Desativada';
+    }
+  }
+
+  // 6. Action Button: Gallery
+  if (btnGallery) {
+    btnGallery.innerText = isServerRunning ? 'Reiniciar Galeria' : 'Iniciar Galeria';
+  }
+
+  // 7. Action Link: Gallery URL
+  if (linkGallery) {
+    linkGallery.href = `http://${currentHostIp}:2283`;
+  }
+
+  // 8. Action Button: Heavy AI Module Toggle
+  if (btnAi) {
+    if (isAiRunning) {
+      btnAi.innerText = 'Desativar IA (Liberar RAM)';
+      btnAi.className = 'btn btn-ai-off btn-sm';
+      btnAi.disabled = false;
+      btnAi.style.opacity = '1';
+      btnAi.style.cursor = 'pointer';
+      btnAi.title = 'Parar módulo pesado e liberar memória RAM';
+    } else if (hw && !hw.canEnableAi) {
+      btnAi.innerText = 'IA Indisponível (< 4GB)';
+      btnAi.className = 'btn btn-secondary btn-sm';
+      btnAi.disabled = true;
+      btnAi.style.opacity = '0.5';
+      btnAi.style.cursor = 'not-allowed';
+      btnAi.title = hw.message || 'Hardware insuficiente para executar modelos neurais com segurança.';
+    } else {
+      btnAi.innerText = 'Ativar Módulo de IA';
+      btnAi.className = 'btn btn-ai-on btn-sm';
+      btnAi.disabled = false;
+      btnAi.style.opacity = '1';
+      btnAi.style.cursor = 'pointer';
+      btnAi.title = 'Iniciar reconhecimento facial e busca inteligente (~1.5GB RAM adicional)';
+    }
+  }
+}
+
+async function toggleImmichService() {
+  const isRunning = currentStatus?.immich?.running;
+  const action = isRunning ? 'restart' : 'start';
+  showToast(isRunning ? 'Reiniciando Galeria Immich...' : 'Iniciando Galeria de Fotos (Modo Leve)...', 'info');
+  await controlService('immich', action);
+}
+
+async function toggleImmichAi() {
+  const isAiRunning = !!(currentStatus?.immich?.subservices?.ml?.running || currentStatus?.immich?.aiModule?.running);
+  const hw = currentStatus?.hardware;
+
+  if (!isAiRunning) {
+    if (hw && !hw.canEnableAi) {
+      alert(`Hardware insuficiente (${hw.totalMemGB}GB de RAM detectados).\n\nO módulo de IA requer no mínimo 4GB de RAM para evitar travamentos do sistema operacional ou esgotamento de memória (OOM).`);
+      return;
+    }
+    if (!confirm(`Deseja iniciar o Módulo de IA do Immich?\n\nEste serviço executa modelos neurais para Reconhecimento Facial e Classificação de Fotos, consumindo cerca de 1.5GB a 2GB de RAM adicional.`)) {
+      return;
+    }
+    showToast('Iniciando Módulo de IA do Immich...', 'info');
+    await controlService('immich-ai', 'start');
+  } else {
+    if (!confirm('Deseja desativar o Módulo de IA para economizar memória RAM e CPU?\n\nA visualização de fotos continuará funcionando normalmente no Modo Leve.')) {
+      return;
+    }
+    showToast('Parando Módulo de IA e liberando memória RAM...', 'info');
+    await controlService('immich-ai', 'stop');
   }
 }
 

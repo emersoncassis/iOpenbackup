@@ -754,6 +754,38 @@ h1 {
   color: #fff;
 }
 
+.btn-ai-on {
+  background: rgba(168, 85, 247, 0.18);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+}
+
+.btn-ai-on:hover {
+  background: rgba(168, 85, 247, 0.32);
+  color: #e9d5ff;
+}
+
+.btn-ai-off {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.btn-ai-off:hover {
+  background: rgba(239, 68, 68, 0.28);
+  color: #fca5a5;
+}
+
+.badge-hw-ok {
+  color: #34d399 !important;
+  font-weight: 600;
+}
+
+.badge-hw-warn {
+  color: #fbbf24 !important;
+  font-weight: 600;
+}
+
 .w-full {
   width: 100%;
 }
