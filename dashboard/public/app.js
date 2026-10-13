@@ -6,6 +6,22 @@ let logTimer = null;
 let currentHostIp = '127.0.0.1';
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Pre-set detected host immediately from browser URL
+  const initialHost = getEffectiveHostIp(null);
+  currentHostIp = initialHost;
+  const ipBadge = document.getElementById('hostIpText');
+  if (ipBadge) ipBadge.innerText = `Wi-Fi IP: ${initialHost}`;
+  const smbUrl = `smb://${initialHost}:4445`;
+  const smbEl = document.getElementById('smbUrlText');
+  if (smbEl) smbEl.innerText = smbUrl;
+  const guideSmb = document.getElementById('guideSmbAddress');
+  if (guideSmb) guideSmb.innerText = smbUrl;
+  const stepSmb = document.getElementById('stepSmbUrl');
+  if (stepSmb) stepSmb.innerText = smbUrl;
+  const qrCap = document.getElementById('qrCaption');
+  if (qrCap) qrCap.innerText = smbUrl;
+  renderQRCode('qrCanvas', smbUrl);
+
   initTabs();
   initDialogFallback();
   initControls();

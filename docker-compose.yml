@@ -22,6 +22,7 @@ services:
       - CONFIG_FILE_PATH=/config/config.yaml
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./dashboard:/app/dashboard
       - iopdash_data:/app/dashboard/data
       - ./config:/config
     depends_on:
