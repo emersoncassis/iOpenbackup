@@ -20,6 +20,44 @@ if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
 }
 
+// Garante que o arquivo de configuração do iCloud exista e tenha permissões adequadas
+function ensureConfigFile() {
+  const configDir = '/config';
+  const targetConfig = path.join(configDir, 'config.yaml');
+  const bundledExample = path.join(__dirname, '..', 'config', 'config.example.yaml');
+  const bundledConfig = path.join(__dirname, '..', 'config', 'config.yaml');
+
+  try {
+    if (fs.existsSync(configDir)) {
+      try { fs.chmodSync(configDir, 0o777); } catch (_) {}
+
+      let created = false;
+      if (!fs.existsSync(targetConfig)) {
+        console.log('[iOpDash] /config/config.yaml não encontrado. Provisionando modelo inicial...');
+        const src = fs.existsSync(bundledConfig) ? bundledConfig : bundledExample;
+        if (fs.existsSync(src)) {
+          fs.copyFileSync(src, targetConfig);
+          console.log(`[iOpDash] Criado ${targetConfig} com sucesso!`);
+          created = true;
+        }
+      }
+
+      if (fs.existsSync(targetConfig)) {
+        try { fs.chmodSync(targetConfig, 0o666); } catch (_) {}
+      }
+
+      if (created) {
+        runCmd('docker restart icloud').then(() => {
+          console.log('[iOpDash] Container icloud reiniciado após provisionar config.yaml.');
+        }).catch(() => {});
+      }
+    }
+  } catch (err) {
+    console.error('[iOpDash] Erro ao garantir config.yaml:', err.message);
+  }
+}
+ensureConfigFile();
+
 // In-memory active sessions: token -> { username, expiresAt }
 const activeSessions = new Map();
 
@@ -115,6 +153,23 @@ function getLocalIP() {
   return '127.0.0.1';
 }
 
+function getHostIP(req = null) {
+  if (process.env.HOST_IP) {
+    return process.env.HOST_IP;
+  }
+  if (req && req.headers) {
+    const forwarded = req.headers['x-forwarded-host'] || req.headers['x-forwarded-for'];
+    const hostHeader = (forwarded || req.headers.host || '').split(',')[0].trim();
+    if (hostHeader) {
+      const cleanHost = hostHeader.replace(/:\d+$/, '').trim();
+      if (cleanHost && cleanHost !== 'localhost' && !cleanHost.startsWith('127.')) {
+        return cleanHost;
+      }
+    }
+  }
+  return getLocalIP();
+}
+
 function getUsers() {
   try {
     if (fs.existsSync(USERS_FILE)) {
@@ -138,7 +193,7 @@ function saveUsers(users) {
   fs.writeFileSync(SAMBA_CONF_FILE, lines.join('\n') + '\n', 'utf8');
 }
 
-async function getDockerStatus() {
+async function getDockerStatus(req = null) {
   const res = await runCmd('docker ps -a --format "{{json .}}"');
   const containers = [];
   if (res.stdout) {
@@ -155,7 +210,7 @@ async function getDockerStatus() {
     return containers.find(c => (c.Names || '').includes(name)) || null;
   };
 
-  const hostIp = getLocalIP();
+  const hostIp = getHostIP(req);
   const icloudCont = findContainer('icloud');
   const immichServer = findContainer('immich_server');
   const immichMl = findContainer('immich_machine_learning');
@@ -261,11 +316,104 @@ function proxyToIcloud(req, res, targetPath, search) {
   proxyReq.on('error', (err) => {
     res.writeHead(502, { 'Content-Type': 'text/html; charset=utf-8' });
     res.end(`
-      <div style="font-family:sans-serif;padding:30px;background:#0a0e17;color:#fff;min-height:100vh;">
-        <h2 style="color:#f43f5e;">Erro ao conectar ao iCloud Sync Engine</h2>
-        <p>Não foi possível contactar o container do iCloud em ${ICLOUD_HOST}:${ICLOUD_PORT}: ${err.message}</p>
-        <p><a href="/" style="color:#38bdf8;">&larr; Voltar para o iOpDash</a></p>
-      </div>
+      <!DOCTYPE html>
+      <html lang="pt-BR">
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="refresh" content="5">
+        <title>iCloud Sync Engine - Conectando...</title>
+        <style>
+          * { box-sizing: border-box; margin: 0; padding: 0; }
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #090d16;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+          }
+          .card {
+            background: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 16px;
+            max-width: 540px;
+            width: 100%;
+            padding: 32px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+            text-align: center;
+          }
+          .icon-spin {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #1e293b;
+            border-top-color: #38bdf8;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+          }
+          @keyframes spin { to { transform: rotate(360deg); } }
+          h2 { font-size: 1.35rem; font-weight: 700; color: #38bdf8; margin-bottom: 12px; }
+          p { color: #94a3b8; font-size: 0.95rem; line-height: 1.5; margin-bottom: 16px; }
+          .error-badge {
+            background: rgba(244, 63, 94, 0.1);
+            border: 1px solid rgba(244, 63, 94, 0.25);
+            color: #f43f5e;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.82rem;
+            margin-bottom: 20px;
+            word-break: break-all;
+          }
+          .countdown {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 24px;
+          }
+          .actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+          }
+          .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+          }
+          .btn-primary { background: #0284c7; color: #fff; }
+          .btn-primary:hover { background: #0369a1; }
+          .btn-secondary { background: #1e293b; color: #cbd5e1; }
+          .btn-secondary:hover { background: #334155; }
+        </style>
+      </head>
+      <body>
+        <div class="card">
+          <div class="icon-spin"></div>
+          <h2>iCloud Sync Engine — Conectando...</h2>
+          <p>O container do iCloud está iniciando o serviço Web UI ou carregando as configurações. A conexão será restabelecida automaticamente em instantes.</p>
+          <div class="error-badge">
+            Destino: ${ICLOUD_HOST}:${ICLOUD_PORT} &bull; ${err.code || err.message}
+          </div>
+          <div class="countdown">
+            Recarregando automaticamente a cada 5 segundos...
+          </div>
+          <div class="actions">
+            <button class="btn btn-primary" onclick="window.location.reload()">Reconectar Agora</button>
+            <a class="btn btn-secondary" href="/">&larr; Voltar para o iOpDash</a>
+          </div>
+        </div>
+      </body>
+      </html>
     `);
   });
 
@@ -428,7 +576,7 @@ const server = http.createServer(async (req, res) => {
 
     // GET /api/status
     if (pathname === '/api/status' && method === 'GET') {
-      const status = await getDockerStatus();
+      const status = await getDockerStatus(req);
       const users = getUsers();
       res.writeHead(200, { 'Content-Type': 'application/json' });
       return res.end(JSON.stringify({ success: true, ...status, usersCount: users.length }));

@@ -228,10 +228,10 @@ async function fetchStatus() {
     if (!data.success) return;
 
     currentStatus = data;
-    currentHostIp = data.network?.hostIp || '127.0.0.1';
+    currentHostIp = getEffectiveHostIp(data);
 
     // Update IP badges and URLs
-    updateNetworkInfo(data);
+    updateNetworkInfo(data, currentHostIp);
 
     // Update Service Cards
     updateServiceCard('icloud', data.icloud);
@@ -265,8 +265,28 @@ function updateSubserviceBadge(id, isRunning) {
   }
 }
 
-function updateNetworkInfo(data) {
-  const hostIp = data.network?.hostIp || '127.0.0.1';
+function getEffectiveHostIp(data) {
+  const browserHost = window.location.hostname;
+  const isBrowserValid = browserHost && browserHost !== 'localhost' && !browserHost.startsWith('127.');
+  
+  const apiIp = data?.network?.hostIp;
+  const isApiInternal = !apiIp || apiIp.startsWith('172.') || apiIp.startsWith('127.') || apiIp === 'localhost';
+
+  // Se o navegador está acessando por um IP real (ex: 192.168.15.81), esse é o IP acessível do host
+  if (isBrowserValid) {
+    return browserHost;
+  }
+  // Se o servidor retornou um IP que não é bridge docker interna
+  if (apiIp && !isApiInternal) {
+    return apiIp;
+  }
+  return browserHost || apiIp || '127.0.0.1';
+}
+
+function updateNetworkInfo(data, effectiveHost) {
+  const hostIp = effectiveHost || getEffectiveHostIp(data);
+  currentHostIp = hostIp;
+
   document.getElementById('hostIpText').innerText = `Wi-Fi IP: ${hostIp}`;
 
   const smbUrl = `smb://${hostIp}:4445`;

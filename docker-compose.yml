@@ -23,7 +23,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - iopdash_data:/app/dashboard/data
-      - icloud_config:/config
+      - ./config:/config
     depends_on:
       - icloud
       - samba
@@ -43,7 +43,7 @@ services:
       - TZ=America/Sao_Paulo
       - ENV_CONFIG_FILE_PATH=/config/config.yaml
     volumes:
-      - icloud_config:/config
+      - ./config:/config
       - icloud_data:/icloud
     ports:
       - "127.0.0.1:8080:8080"
@@ -137,8 +137,6 @@ services:
 volumes:
   iopdash_data:
     name: iopdash_data
-  icloud_config:
-    name: icloud_config
   icloud_data:
     name: icloud_data
   immich_data:

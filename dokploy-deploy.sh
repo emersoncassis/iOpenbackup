@@ -20,5 +20,10 @@ for iface in $(ip -o link show | awk -F': ' '{print $2}' | grep -v 'lo'); do
 done
 iptables -t mangle -A POSTROUTING -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu 2>/dev/null || true
 
+# 4. Preparar permissoes de gravacao para as pastas de configuracao e dados
+mkdir -p ./config ./dashboard/data
+chmod -R 777 ./config ./dashboard/data 2>/dev/null || true
+[ -f "./config/config.yaml" ] && chmod 666 ./config/config.yaml 2>/dev/null || true
+
 echo "[*] Subindo containers Docker via Compose (iOpDash Orquestrador, iCloud, Samba, Immich)..."
 exec docker compose --env-file .env -f ./docker-compose.yml up -d --build --remove-orphans
