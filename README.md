@@ -239,6 +239,32 @@ Você não precisa de aplicativos proprietários ou adicionais no iOS. O iPhone 
 
 ---
 
+## Redundância & Failover Inteligente de Rede (Cabo Ethernet x Wi-Fi)
+
+Para servidores locais, Raspberry Pi ou hosts Dokploy com conexão cabeada e antena Wi-Fi, o **iOpenbackup** inclui um monitor de contingência inteligente (`scripts/wifi-failover.sh`):
+
+- **Cabo Conectado (Normal):** O Wi-Fi permanece **100% desabilitado** (rádio desligado via NetworkManager/rfkill). Isso elimina conflitos de IP duplo, rotas divididas e reduz o consumo e interferência de sinal.
+- **Queda de Cabo (Contingência):** Se o cabo for desconectado ou perder sinal de rede, o monitor **ativa o Wi-Fi imediatamente**, conectando à rede sem fio para garantir que você não perca o acesso ao Dokploy e aos seus backups.
+- **Retorno do Cabo:** Quando o cabo é reconectado e o sinal estabiliza, o Wi-Fi é automaticamente **desligado novamente**.
+
+### Comandos de Gerenciamento:
+
+```bash
+# 1. Instalar e ativar como serviço permanente no sistema (inicia no boot)
+sudo bash scripts/wifi-failover.sh install
+
+# 2. Verificar o status em tempo real das interfaces e do serviço
+sudo bash scripts/wifi-failover.sh status
+
+# 3. Acompanhar logs ao vivo
+sudo journalctl -u iopenbackup-wifi-failover -f
+
+# 4. Remover o serviço (se desejar)
+sudo bash scripts/wifi-failover.sh uninstall
+```
+
+---
+
 ## Recuperação e Reset de Senha Mestra
 
 Se você esquecer a senha mestra da dashboard, não se preocupe: **seus dados e fotos sincronizados nunca são apagados**. 

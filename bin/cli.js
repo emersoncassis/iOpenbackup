@@ -281,6 +281,7 @@ function showHelp() {
   console.log(`  ${colors.cyan}npx iopenbackup stop${colors.reset}         Para os containers Docker`);
   console.log(`  ${colors.cyan}npx iopenbackup status${colors.reset}       Exibe o status de saúde dos serviços`);
   console.log(`  ${colors.cyan}npx iopenbackup reset${colors.reset}        Reseta a senha mestra para criar uma nova`);
+  console.log(`  ${colors.cyan}npx iopenbackup wifi-failover${colors.reset} Gerencia o failover de rede (Wi-Fi desativado / cabo primário)`);
   console.log(`  ${colors.cyan}npx iopenbackup help${colors.reset}         Exibe esta mensagem de ajuda\n`);
   console.log(`${colors.bold}EXEMPLO RÁPIDO:${colors.reset}`);
   console.log(`  npx iopenbackup\n`);
@@ -308,6 +309,20 @@ async function main() {
     case 'reset-password':
       await resetPassword(CWD);
       break;
+    case 'wifi-failover':
+    case 'failover': {
+      banner();
+      const subArg = process.argv[3] || 'status';
+      const scriptPath = path.join(PKG_ROOT, 'scripts', 'wifi-failover.sh');
+      if (process.platform === 'win32') {
+        console.log(`${colors.yellow}[!] O serviço de failover de rede (Wi-Fi desligado com fallback inteligente) foi projetado para servidores Linux (Raspberry Pi / Debian / Ubuntu / Dokploy).${colors.reset}`);
+        console.log(`No seu servidor Linux, execute:\n  ${colors.bold}sudo bash scripts/wifi-failover.sh ${subArg}${colors.reset}\n`);
+      } else {
+        const child = spawn('sudo', ['bash', scriptPath, subArg], { stdio: 'inherit' });
+        child.on('exit', (code) => process.exit(code || 0));
+      }
+      break;
+    }
     case 'help':
     case '--help':
     case '-h':
