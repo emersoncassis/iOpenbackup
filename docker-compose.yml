@@ -12,7 +12,7 @@ services:
     restart: unless-stopped
     pull_policy: if_not_present
     ports:
-      - "8000:8000"
+      - "${HOST_PORT:-8000}:8000"
     environment:
       - PORT=8000
       - TZ=America/Sao_Paulo
