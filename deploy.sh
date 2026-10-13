@@ -109,6 +109,13 @@ for img in "${IMAGES[@]}"; do
   docker pull "$img" || true
 done
 
+# Limpar serviço legado do Systemd que possa estar segurando a porta no host
+if command -v systemctl &>/dev/null && systemctl is-active --quiet iopenbackup-dashboard; then
+  echo -e "${YELLOW}[*] Desativando serviço legado do Systemd para liberar a porta...${NC}"
+  systemctl stop iopenbackup-dashboard 2>/dev/null || true
+  systemctl disable iopenbackup-dashboard 2>/dev/null || true
+fi
+
 echo -e "\n${BLUE}[*] Iniciando containers Docker (iOpDash Orquestrador, iCloud, Immich AI, Samba)...${NC}"
 docker compose up -d
 

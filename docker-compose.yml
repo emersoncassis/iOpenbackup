@@ -12,9 +12,10 @@ services:
     restart: unless-stopped
     pull_policy: if_not_present
     ports:
-      - "${HOST_PORT:-8000}:8000"
+      - "${HOST_PORT:-8008}:8000"
     environment:
       - PORT=8000
+      - HOST_PORT=${HOST_PORT:-8008}
       - TZ=America/Sao_Paulo
       - ICLOUD_HOST=icloud
       - ICLOUD_PORT=8080

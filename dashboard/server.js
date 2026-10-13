@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const { exec } = require('child_process');
 
 const PORT = process.env.PORT || 8000;
+const HOST_PORT = process.env.HOST_PORT || PORT;
 const ICLOUD_HOST = process.env.ICLOUD_HOST || (fs.existsSync('/.dockerenv') ? 'icloud' : '127.0.0.1');
 const ICLOUD_PORT = process.env.ICLOUD_PORT || 8080;
 const DATA_DIR = path.join(__dirname, 'data');
@@ -182,8 +183,8 @@ async function getDockerStatus() {
       version: '1.0.0',
       status: 'online',
       running: true,
-      port: PORT,
-      url: `http://${hostIp}:${PORT}`
+      port: HOST_PORT,
+      url: `http://${hostIp}:${HOST_PORT}`
     },
     icloud: {
       name: 'iCloud Sync',
@@ -223,8 +224,8 @@ async function getDockerStatus() {
       hostIp: hostIp,
       hostname: os.hostname(),
       ports: {
-        dashboard: PORT,
-        icloudProxy: PORT,
+        dashboard: HOST_PORT,
+        icloudProxy: HOST_PORT,
         immich: 2283,
         samba: 4445
       }
@@ -617,8 +618,8 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`iOpDash - Orquestrador Central & Auth Gateway`);
   console.log(`Plataforma iOpenbackup`);
   console.log(`Painel Protegido disponível em:`);
-  console.log(`  Local:   http://localhost:${PORT}`);
-  console.log(`  Na Rede: http://${localIp}:${PORT}`);
-  console.log(`  Proxy iCloud: http://${localIp}:${PORT}/icloud-proxy/ (Host: ${ICLOUD_HOST}:${ICLOUD_PORT})`);
+  console.log(`  Local:   http://localhost:${HOST_PORT}`);
+  console.log(`  Na Rede: http://${localIp}:${HOST_PORT}`);
+  console.log(`  Proxy iCloud: http://${localIp}:${HOST_PORT}/icloud-proxy/ (Host: ${ICLOUD_HOST}:${ICLOUD_PORT})`);
   console.log(`====================================================`);
 });
