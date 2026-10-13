@@ -23,7 +23,7 @@ Se você também cansou das barreiras das nuvens proprietárias, o **iOpenbackup
 ## Demonstração Visual da Plataforma
 
 <p align="center">
-  <img src="docs/screenshots/02-dashboard-principal.png" alt="Dashboard Principal do iOpenbackup" width="100%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
+  <img src="docs/screenshots/02-dashboard-principal.png" alt="iOpDash — Orquestrador Central do iOpenbackup" width="100%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
 </p>
 
 ### 1. Primeiro Acesso com Proteção de Senha Mestra & Fundo Azul Pulsante
@@ -52,6 +52,7 @@ O **iOpenbackup** reúne o melhor do ecossistema open-source mundial em uma arqu
 
 | Módulo | Projeto & Criadores | Papel na Plataforma |
 | :--- | :--- | :--- |
+| **iOpDash (Orquestrador)** | [iOpDash Orchestrator](https://github.com/emersoncassis/iOpenbackup)<br>*(Idealizado por Emerson Carvalho)* | **Módulo Orquestrador Central & Gateway de Segurança:** comanda o ciclo de vida dos containers Docker, provê autenticação por Senha Mestra, atua como proxy reverso blindado para a API do iCloud, unifica contas de usuários e provê telemetria em tempo real. |
 | **iCloud Sync Engine** | [mandarons/icloud-docker](https://github.com/mandarons/icloud-docker)<br>*(Criado por Mandar Patil & comunidade)* | Sincronização automatizada contínua com a nuvem Apple: baixa fotos, live photos, álbuns e arquivos do iCloud Drive em segundo plano. |
 | **Immich AI Photos** | [immich-app/immich](https://github.com/immich-app/immich)<br>*(Criado por Alex Tran & time Immich)* | Galeria de fotos moderna de alta performance com inteligência artificial, reconhecimento facial, busca semântica, álbuns e linha do tempo. |
 | **Samba SMB Server** | [dockurr/samba](https://github.com/dockur/samba)<br>*(Criado pela equipe Dockurr)* | Servidor SMB leve e ágil que viabiliza a conexão direta e nativa do iPhone via app **Arquivos (Files)** sem instalar nada extra no aparelho. |
@@ -60,39 +61,48 @@ O **iOpenbackup** reúne o melhor do ecossistema open-source mundial em uma arqu
 
 ### Arquitetura Integrada & Orquestração
 - **Idealizador & Mantenedor da Stack Unificada:** **Emerson Carvalho** ([@emersoncassis](https://github.com/emersoncassis))
-- **Desenvolvimento da Central iOpenbackup:**
-  - **Dashboard Central Unificado:** Interface moderna e responsiva para monitoramento de saúde de todos os serviços.
+- **Módulo Orquestrador iOpDash:**
+  - **Orquestração de Containers & Stack:** Controle de início, parada e reinicialização dos containers da stack via Docker socket (`/var/run/docker.sock`).
+  - **Gateway de Autenticação Mestra:** Proteção de primeiro acesso com hash PBKDF2 (SHA-512) e sessões criptográficas para blindar a infraestrutura.
   - **Proxy Reverso Autenticado:** Camada de segurança personalizada para blindar a API do motor iCloud (porta interna em loopback), protegendo acessos externos e requisições 2FA.
   - **Motor de Alinhamento de Usuários:** Mapeamento unificado que amarra credenciais de Apple ID, contas Immich e permissões de compartilhamento Samba em um só fluxo.
   - **Automação & One-Click Scripts:** Scripts de primeiro acesso seguro, reset emergencial de credenciais e inicialização da stack.
 
 ---
 
+## O Módulo Orquestrador: iOpDash
+
+O **iOpDash** é o cérebro e o centro de comando do **iOpenbackup**. Ele atua como um serviço orquestrador de primeira classe (`service: iopdash` no `docker-compose.yml`), gerenciando e supervisionando os outros serviços:
+
+1. **Gestão do Ciclo de Vida da Stack:** Através do socket local do Docker (`/var/run/docker.sock`), o iOpDash pode monitorar a integridade, reiniciar serviços individualmente (`docker restart samba`, `docker restart icloud`) ou aplicar comandos em lote diretamente pela interface.
+2. **Blindagem do iCloud com Proxy Reverso:** O motor `mandarons/icloud-drive` roda estritamente fechado na porta interna. Nenhuma requisição externa acessa diretamente o motor do iCloud; todo tráfego passa pelo gateway autenticado do iOpDash (`/icloud-proxy/`), garantindo que apenas o administrador autenticado execute aprovações 2FA ou sincronizações forçadas.
+3. **Sincronização Multi-Serviço de Usuários:** Ao cadastrar ou alterar um usuário no iOpDash, ele sincroniza o e-mail no arquivo de configuração do iCloud (`config.yaml`), alinha as credenciais da galeria Immich e injeta o usuário no servidor Samba SMB (`samba_users.conf`) para liberar o acesso nativo do iPhone.
+4. **Telemetria e Detecção de Rede:** O iOpDash detecta automaticamente o IP da máquina na rede local Wi-Fi e exibe instruções visuais com QR Code e link direto para conectar o iPhone via SMB.
+
+---
+
 ## Visão Geral da Arquitetura
 
 ```text
-       ┌────────────────────────────────────────────────────────┐
-       │                   iOpenbackup Stack                     │
-       └────────────────────────────────────────────────────────┘
-                                    │
-           ┌────────────────────────┼────────────────────────┐
-           ▼                        ▼                        ▼
+ ┌─────────────────────────────────────────────────────────────────────┐
+ │                      iOpDash - Módulo Orquestrador                  │
+ │        - Orquestração de Containers & Controle de Ciclo de Vida     │
+ │        - Gateway de Autenticação & Senha Mestra (PBKDF2 SHA-512)    │
+ │        - Proxy Reverso Autenticado para iCloud Sync Engine          │
+ │        - Alinhador de Contas: Apple ID + Immich + Samba SMB         │
+ │        - Telemetria de CPU/RAM, Logs em Tempo Real & Healthcheck    │
+ └──────────────────────────────────┬──────────────────────────────────┘
+                                    │ (Orquestra e Monitora)
+       ┌────────────────────────────┼────────────────────────────┐
+       ▼                            ▼                            ▼
  ┌───────────────────┐    ┌───────────────────┐    ┌───────────────────┐
  │ iCloud Sync Engine│    │ Immich AI Photos  │    │  Samba SMB Bridge │
- │ (mandarons/docker)│    │ (immich-server)   │    │  (dockurr/samba)  │
+ │ (mandarons/docker)│    │ (immich-server)   │    │  (samba)          │
  └─────────┬─────────┘    └─────────▲─────────┘    └─────────▲─────────┘
            │                        │                        │
            ▼                        │                        │
     [Volume de Dados] ──────────────┴────────────────────────┘
        /icloud & /shared (Fotos + Documentos sincronizados)
-                                    ▲
-                                    │ (Gerenciamento & Auth)
- ┌──────────────────────────────────┴──────────────────────────────────┐
- │           iOpenbackup Unified Dashboard & Auth Proxy (Node.js)      │
- │        - Controle de Primeiro Acesso com Senha Mestra (PBKDF2)      │
- │        - Alinhamento Unificado: iCloud + Immich + Samba SMB         │
- │        - Proteção Reversa do Motor de 2FA do iCloud                 │
- └─────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -202,9 +212,9 @@ Ao implantar via painéis automatizados como **Dokploy**:
 ## Endereços e Portas
 
 | Serviço | URL Local | Na Rede Wi-Fi / LAN | Segurança |
-| :--- | :--- | :--- | :---: |
-| **Dashboard iOpenbackup** | `http://localhost:8000` | `http://<IP-DO-HOST>:8000` | Senha Mestra |
-| **iCloud Sync Engine** | `http://localhost:8000/icloud-proxy/` | `http://<IP-DO-HOST>:8000/icloud-proxy/` | Proxy Protegido |
+| :--- | :--- | :--- | :--- | :---: |
+| **iOpDash (Orquestrador Central)** | `http://localhost:8000` | `http://<IP-DO-HOST>:8000` | Senha Mestra |
+| **iCloud Sync Engine** | `http://localhost:8000/icloud-proxy/` | `http://<IP-DO-HOST>:8000/icloud-proxy/` | Proxy Protegido do iOpDash |
 | **Immich Galeria de Fotos** | `http://localhost:2283` | `http://<IP-DO-HOST>:2283` | Usuário Immich |
 | **Samba SMB (iPhone)** | `smb://localhost:4445` | `smb://<IP-DO-HOST>:4445` | Usuário Samba |
 

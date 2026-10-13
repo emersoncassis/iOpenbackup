@@ -185,7 +185,7 @@ async function startStack(targetDir = CWD) {
     await runCommand(`docker pull ${img}`, targetDir);
   }
 
-  console.log(`\n${colors.blue}[*] Subindo containers Docker (iCloud, Immich AI, Samba)...${colors.reset}`);
+  console.log(`\n${colors.blue}[*] Subindo containers Docker (iOpDash Orquestrador, iCloud, Immich AI, Samba)...${colors.reset}`);
   const upRes = await runCommand('docker compose up -d', targetDir);
   if (!upRes.success) {
     console.error(`${colors.red}[!] Erro ao subir os containers Docker:${colors.reset}\n${upRes.stderr || upRes.error}`);
@@ -197,23 +197,28 @@ async function startStack(targetDir = CWD) {
   const dashboardPath = path.join(targetDir, 'dashboard', 'server.js');
 
   console.log(`\n${colors.green}${colors.bold}==============================================================${colors.reset}`);
-  console.log(`${colors.green}${colors.bold}       [OK] iOpenbackup está ONLINE e pronto para uso!         ${colors.reset}`);
+  console.log(`${colors.green}${colors.bold}       [OK] iOpenbackup & iOpDash ONLINE e prontos!           ${colors.reset}`);
   console.log(`${colors.green}${colors.bold}==============================================================${colors.reset}`);
   console.log(`\n${colors.bold}Acessos disponíveis:${colors.reset}`);
-  console.log(`  [-] ${colors.cyan}Dashboard Central:${colors.reset}    http://localhost:8000  (ou http://${hostIp}:8000)`);
-  console.log(`  [-] ${colors.cyan}iCloud 2FA Proxy:${colors.reset}     http://localhost:8000/icloud-proxy/`);
-  console.log(`  [-] ${colors.cyan}Immich Photos IA:${colors.reset}     http://localhost:2283  (ou http://${hostIp}:2283)`);
-  console.log(`  [-] ${colors.cyan}Samba SMB (iPhone):${colors.reset}   smb://${hostIp}:4445`);
-  console.log(`\n${colors.yellow}[*] Abra http://localhost:8000 para definir seu usuário e senha mestra.${colors.reset}\n`);
+  console.log(`  [-] ${colors.cyan}iOpDash (Orquestrador):${colors.reset}   http://localhost:8000  (ou http://${hostIp}:8000)`);
+  console.log(`  [-] ${colors.cyan}iCloud 2FA Proxy:${colors.reset}       http://localhost:8000/icloud-proxy/`);
+  console.log(`  [-] ${colors.cyan}Immich Photos IA:${colors.reset}       http://localhost:2283  (ou http://${hostIp}:2283)`);
+  console.log(`  [-] ${colors.cyan}Samba SMB (iPhone):${colors.reset}     smb://${hostIp}:4445`);
+  console.log(`\n${colors.yellow}[*] Abra http://localhost:8000 para definir seu usuário e senha mestra no iOpDash.${colors.reset}\n`);
 
   // Open browser automatically
   setTimeout(() => {
     openBrowser('http://localhost:8000');
   }, 1000);
 
-  // Start dashboard server in foreground so terminal keeps it alive
-  if (fs.existsSync(dashboardPath)) {
-    console.log(`${colors.blue}[*] Iniciando Dashboard Server na porta 8000 (Pressione Ctrl+C para parar)...${colors.reset}\n`);
+  // Check if iOpDash container is already running via docker compose
+  const psCheck = await runCommand('docker ps --filter "name=iopdash" --format "{{.Status}}"', targetDir);
+  const isIopdashRunningInDocker = psCheck.success && psCheck.stdout.toLowerCase().includes('up');
+
+  if (isIopdashRunningInDocker) {
+    console.log(`${colors.green}[✓] iOpDash está ativo dentro do Docker. Para acompanhar logs: docker logs -f iopdash${colors.reset}\n`);
+  } else if (fs.existsSync(dashboardPath)) {
+    console.log(`${colors.blue}[*] Iniciando iOpDash localmente na porta 8000 (Pressione Ctrl+C para parar)...${colors.reset}\n`);
     const srv = spawn(process.execPath, [dashboardPath], {
       cwd: targetDir,
       stdio: 'inherit'

@@ -6,11 +6,13 @@ const crypto = require('crypto');
 const { exec } = require('child_process');
 
 const PORT = process.env.PORT || 8000;
+const ICLOUD_HOST = process.env.ICLOUD_HOST || (fs.existsSync('/.dockerenv') ? 'icloud' : '127.0.0.1');
+const ICLOUD_PORT = process.env.ICLOUD_PORT || 8080;
 const DATA_DIR = path.join(__dirname, 'data');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const AUTH_FILE = path.join(DATA_DIR, 'auth.json');
 const SAMBA_CONF_FILE = path.join(DATA_DIR, 'samba_users.conf');
-const CONFIG_YAML_FILE = path.join(__dirname, '..', 'config', 'config.yaml');
+const CONFIG_YAML_FILE = process.env.CONFIG_FILE_PATH || (fs.existsSync('/config/config.yaml') ? '/config/config.yaml' : path.join(__dirname, '..', 'config', 'config.yaml'));
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
 if (!fs.existsSync(DATA_DIR)) {
@@ -125,7 +127,7 @@ function getUsers() {
 
 function saveUsers(users) {
   fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), 'utf8');
-  const lines = ['# Gerado automaticamente pelo iOpenbackup Dashboard'];
+  const lines = ['# Gerado automaticamente pelo iOpDash - Orquestrador iOpenbackup'];
   users.forEach((u, idx) => {
     const uid = 1000 + idx;
     const user = u.samba_user || 'user';
@@ -174,6 +176,15 @@ async function getDockerStatus() {
   };
 
   return {
+    orchestrator: {
+      name: 'iOpDash',
+      role: 'Módulo Orquestrador Central & Gateway de Autenticação',
+      version: '1.0.0',
+      status: 'online',
+      running: true,
+      port: PORT,
+      url: `http://${hostIp}:${PORT}`
+    },
     icloud: {
       name: 'iCloud Sync',
       container: 'icloud',
@@ -228,14 +239,14 @@ async function getDockerStatus() {
   };
 }
 
-// Reverse Proxy for iCloud Sync Engine (Protected by Dashboard Auth)
+// Reverse Proxy for iCloud Sync Engine (Protected by iOpDash Auth)
 function proxyToIcloud(req, res, targetPath, search) {
   const headers = { ...req.headers };
-  headers['host'] = '127.0.0.1:8080';
+  headers['host'] = `${ICLOUD_HOST}:${ICLOUD_PORT}`;
 
   const options = {
-    hostname: '127.0.0.1',
-    port: 8080,
+    hostname: ICLOUD_HOST,
+    port: ICLOUD_PORT,
     path: targetPath + (search || ''),
     method: req.method,
     headers: headers
@@ -251,8 +262,8 @@ function proxyToIcloud(req, res, targetPath, search) {
     res.end(`
       <div style="font-family:sans-serif;padding:30px;background:#0a0e17;color:#fff;min-height:100vh;">
         <h2 style="color:#f43f5e;">Erro ao conectar ao iCloud Sync Engine</h2>
-        <p>Não foi possível contactar o container do iCloud na porta interna 8080: ${err.message}</p>
-        <p><a href="/" style="color:#38bdf8;">&larr; Voltar para a Dashboard</a></p>
+        <p>Não foi possível contactar o container do iCloud em ${ICLOUD_HOST}:${ICLOUD_PORT}: ${err.message}</p>
+        <p><a href="/" style="color:#38bdf8;">&larr; Voltar para o iOpDash</a></p>
       </div>
     `);
   });
@@ -471,7 +482,9 @@ const server = http.createServer(async (req, res) => {
                 let yamlContent = fs.readFileSync(CONFIG_YAML_FILE, 'utf8');
                 yamlContent = yamlContent.replace(/username:\s*".*?"/, `username: "${payload.icloud_email}"`);
                 fs.writeFileSync(CONFIG_YAML_FILE, yamlContent, 'utf8');
-                await runCmd(`docker cp "${CONFIG_YAML_FILE}" icloud:/config/config.yaml`);
+                if (!CONFIG_YAML_FILE.startsWith('/config')) {
+                  await runCmd(`docker cp "${CONFIG_YAML_FILE}" icloud:/config/config.yaml`);
+                }
               }
             } catch (e) {
               console.error('Failed to auto-update config.yaml:', e);
@@ -601,10 +614,11 @@ const server = http.createServer(async (req, res) => {
 server.listen(PORT, '0.0.0.0', () => {
   const localIp = getLocalIP();
   console.log(`====================================================`);
-  console.log(`iOpenbackup Unified Dashboard & Auth Proxy`);
+  console.log(`iOpDash - Orquestrador Central & Auth Gateway`);
+  console.log(`Plataforma iOpenbackup`);
   console.log(`Painel Protegido disponível em:`);
   console.log(`  Local:   http://localhost:${PORT}`);
   console.log(`  Na Rede: http://${localIp}:${PORT}`);
-  console.log(`  Proxy iCloud Protegido: http://${localIp}:${PORT}/icloud-proxy/`);
+  console.log(`  Proxy iCloud: http://${localIp}:${PORT}/icloud-proxy/ (Host: ${ICLOUD_HOST}:${ICLOUD_PORT})`);
   console.log(`====================================================`);
 });

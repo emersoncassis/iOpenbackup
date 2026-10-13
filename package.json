@@ -12,10 +12,13 @@
     "status": "node bin/cli.js status",
     "reset": "node bin/cli.js reset",
     "pull": "bash pull.sh",
+    "iopdash": "node dashboard/server.js",
     "dashboard": "node dashboard/server.js"
   },
   "keywords": [
     "iopenbackup",
+    "iopdash",
+    "orchestrator",
     "icloud",
     "backup",
     "iphone",

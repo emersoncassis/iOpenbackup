@@ -1,12 +1,12 @@
 {
-  "name": "iopenbackup-dashboard",
+  "name": "iopdash",
   "version": "1.0.0",
-  "description": "Unified Dashboard for iCloud Sync, Immich Photos, and Samba iOS File Server",
+  "description": "iOpDash - Módulo Orquestrador e Painel Central do iOpenbackup",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
-  "keywords": ["icloud", "immich", "samba", "ios", "backup"],
+  "keywords": ["iopdash", "orchestrator", "iopenbackup", "icloud", "immich", "samba", "ios", "backup"],
   "author": "Emerson Carvalho (https://github.com/emersoncassis)",
   "repository": {
     "type": "git",

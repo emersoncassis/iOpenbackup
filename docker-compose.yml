@@ -2,8 +2,34 @@ name: iopenbackup
 
 services:
   # ==========================================
+  # 0. iOpDash - Módulo Orquestrador & Painel Central
+  # ==========================================
+  iopdash:
+    container_name: iopdash
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    pull_policy: if_not_present
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - TZ=America/Sao_Paulo
+      - ICLOUD_HOST=icloud
+      - ICLOUD_PORT=8080
+      - CONFIG_FILE_PATH=/config/config.yaml
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - iopdash_data:/app/dashboard/data
+      - icloud_config:/config
+    depends_on:
+      - icloud
+      - samba
+
+  # ==========================================
   # 1. iCloud Client (mandarons/icloud-docker)
-  # Porta protegida: acessível apenas via localhost/Dashboard
+  # Porta interna: acessível via proxy autenticado do iOpDash
   # ==========================================
   icloud:
     image: mandarons/icloud-drive:latest
@@ -103,10 +129,13 @@ services:
       RW: "true"
     volumes:
       - icloud_data:/shared
+      - iopdash_data:/data:ro
     ports:
       - "4445:445"
 
 volumes:
+  iopdash_data:
+    name: iopdash_data
   icloud_config:
     name: icloud_config
   icloud_data:
@@ -117,3 +146,4 @@ volumes:
     name: immich_model_cache
   immich_postgres_data:
     name: immich_postgres_data
+

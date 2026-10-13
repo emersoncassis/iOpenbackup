@@ -36,8 +36,8 @@ async function checkAuthStatus() {
       appLayout.style.display = 'none';
       setupForm.style.display = 'flex';
       loginForm.style.display = 'none';
-      authTitle.innerText = 'Configuração do Primeiro Acesso';
-      authSubtitle.innerText = 'Crie o usuário e a senha mestra para proteger a plataforma e o iCloud Sync Engine.';
+      authTitle.innerText = 'Configuração do Primeiro Acesso (iOpDash)';
+      authSubtitle.innerText = 'Defina a senha mestra do iOpDash para proteger a plataforma e o iCloud Sync Engine.';
       return;
     }
 
@@ -47,8 +47,8 @@ async function checkAuthStatus() {
       appLayout.style.display = 'none';
       setupForm.style.display = 'none';
       loginForm.style.display = 'flex';
-      authTitle.innerText = 'Central iOpenbackup';
-      authSubtitle.innerText = 'Acesso restrito. Digite suas credenciais para continuar.';
+      authTitle.innerText = 'iOpDash — Orquestrador';
+      authSubtitle.innerText = 'Acesso restrito. Digite suas credenciais para gerenciar a stack.';
       return;
     }
 

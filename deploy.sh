@@ -109,7 +109,7 @@ for img in "${IMAGES[@]}"; do
   docker pull "$img" || true
 done
 
-echo -e "\n${BLUE}[*] Iniciando containers Docker (iCloud, Immich AI, Samba)...${NC}"
+echo -e "\n${BLUE}[*] Iniciando containers Docker (iOpDash Orquestrador, iCloud, Immich AI, Samba)...${NC}"
 docker compose up -d
 
 # 7. Configurar serviço Systemd para o Dashboard (Reinicia automaticamente no boot)
@@ -117,7 +117,7 @@ echo -e "\n${BLUE}[*] Configurando inicialização automática do Dashboard (Sys
 SERVICE_FILE="/etc/systemd/system/iopenbackup-dashboard.service"
 cat << EOF > "$SERVICE_FILE"
 [Unit]
-Description=iOpenbackup Dashboard & Auth Proxy
+Description=iOpDash - Orquestrador Central iOpenbackup
 After=network.target docker.service
 
 [Service]
@@ -145,9 +145,9 @@ echo -e "\n${GREEN}${BOLD}======================================================
 echo -e "${GREEN}${BOLD}     [OK] INSTALAÇÃO DO iOpenbackup CONCLUÍDA COM SUCESSO!     ${NC}"
 echo -e "${GREEN}${BOLD}================================================================${NC}"
 echo -e "\n${BOLD}Acesse os serviços pelo navegador ou iPhone:${NC}"
-echo -e "  [-] ${CYAN}Dashboard Central:${NC}  http://${SERVER_IP}:8000"
-echo -e "  [-] ${CYAN}iCloud 2FA Proxy:${NC}   http://${SERVER_IP}:8000/icloud-proxy/"
-echo -e "  [-] ${CYAN}Immich Photos AI:${NC}   http://${SERVER_IP}:2283"
-echo -e "  [-] ${CYAN}Samba SMB (iPhone):${NC} smb://${SERVER_IP}:4445"
-echo -e "\n${YELLOW}[*] No primeiro acesso em http://${SERVER_IP}:8000, defina sua Senha Mestra.${NC}"
+echo -e "  [-] ${CYAN}iOpDash Orquestrador:${NC}  http://${SERVER_IP}:8000"
+echo -e "  [-] ${CYAN}iCloud 2FA Proxy:${NC}      http://${SERVER_IP}:8000/icloud-proxy/"
+echo -e "  [-] ${CYAN}Immich Photos AI:${NC}      http://${SERVER_IP}:2283"
+echo -e "  [-] ${CYAN}Samba SMB (iPhone):${NC}    smb://${SERVER_IP}:4445"
+echo -e "\n${YELLOW}[*] No primeiro acesso em http://${SERVER_IP}:8000, defina sua Senha Mestra no iOpDash.${NC}"
 echo -e "${CYAN}================================================================${NC}\n"
