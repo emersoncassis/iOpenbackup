@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const initialHost = getEffectiveHostIp(null);
   currentHostIp = initialHost;
   const ipBadge = document.getElementById('hostIpText');
-  if (ipBadge) ipBadge.innerText = `Wi-Fi IP: ${initialHost}`;
+  if (ipBadge) ipBadge.innerText = `IP: ${initialHost}`;
   const smbUrl = `smb://${initialHost}:4445`;
   const smbEl = document.getElementById('smbUrlText');
   if (smbEl) smbEl.innerText = smbUrl;
@@ -303,7 +303,7 @@ function updateNetworkInfo(data, effectiveHost) {
   const hostIp = effectiveHost || getEffectiveHostIp(data);
   currentHostIp = hostIp;
 
-  document.getElementById('hostIpText').innerText = `Wi-Fi IP: ${hostIp}`;
+  document.getElementById('hostIpText').innerText = `IP: ${hostIp}`;
 
   const smbUrl = `smb://${hostIp}:4445`;
   const smbUrlText = document.getElementById('smbUrlText');
